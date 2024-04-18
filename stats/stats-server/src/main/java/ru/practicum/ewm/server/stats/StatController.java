@@ -3,11 +3,11 @@ package ru.practicum.ewm.server.stats;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.stats.EventDto;
+import ru.practicum.ewm.dto.stats.EventGetDto;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,5 +22,11 @@ public class StatController {
         service.saveEvent(eventDto);
     }
 
-
+    @GetMapping("/stats")
+    public List<EventGetDto> findEvents(@RequestParam String start, @RequestParam String end,
+                                        @RequestParam(required = false) String[] uris,
+                                        @RequestParam(defaultValue = "false") boolean unique) {
+        log.info("Finding events: start = {}, end = {}", start, end);
+        return service.findEvents(start, end, uris, unique);
+    }
 }

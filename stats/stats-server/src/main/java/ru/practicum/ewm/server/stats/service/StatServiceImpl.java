@@ -1,9 +1,13 @@
-package ru.practicum.ewm.server.stats;
+package ru.practicum.ewm.server.stats.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.stats.EventDto;
 import ru.practicum.ewm.dto.stats.EventGetDto;
+import ru.practicum.ewm.server.stats.EventMapper;
+import ru.practicum.ewm.server.stats.StatRepository;
+import ru.practicum.ewm.server.stats.entity.EventForGet;
+import ru.practicum.ewm.server.stats.service.StatService;
 
 import java.util.Comparator;
 import java.util.List;

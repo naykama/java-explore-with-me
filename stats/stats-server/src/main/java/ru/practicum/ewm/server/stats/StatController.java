@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.stats.EventDto;
 import ru.practicum.ewm.dto.stats.EventGetDto;
+import ru.practicum.ewm.server.stats.service.StatService;
 
 import javax.validation.Valid;
 import java.util.List;

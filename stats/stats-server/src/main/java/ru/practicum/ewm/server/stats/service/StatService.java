@@ -1,4 +1,4 @@
-package ru.practicum.ewm.server.stats;
+package ru.practicum.ewm.server.stats.service;
 
 import ru.practicum.ewm.dto.stats.EventDto;
 import ru.practicum.ewm.dto.stats.EventGetDto;

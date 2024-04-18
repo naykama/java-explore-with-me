@@ -1,6 +1,5 @@
 package ru.practicum.ewm.server.stats;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.ewm.dto.stats.EventDto;
 import ru.practicum.ewm.dto.stats.EventGetDto;
 

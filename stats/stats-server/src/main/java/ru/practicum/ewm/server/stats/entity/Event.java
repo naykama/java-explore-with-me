@@ -24,6 +24,7 @@ public class Event {
     private LocalDateTime existDate;
 
     public Event(String app, String uri, String ip, LocalDateTime existDate) {
+        this.id = -1L;
         this.app = app;
         this.uri = uri;
         this.ip = ip;

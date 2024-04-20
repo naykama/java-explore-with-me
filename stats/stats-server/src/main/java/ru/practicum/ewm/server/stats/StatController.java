@@ -27,7 +27,7 @@ public class StatController {
     }
 
     @GetMapping("/stats")
-    public @Valid List<EventGetDto> findEvents(@RequestParam String start, @RequestParam String end,
+    public List<EventGetDto> findEvents(@RequestParam String start, @RequestParam String end,
                                         @RequestParam(required = false) String[] uris,
                                         @RequestParam(defaultValue = "false") boolean unique) {
         log.info("Finding events: start = {}, end = {}", start, end);

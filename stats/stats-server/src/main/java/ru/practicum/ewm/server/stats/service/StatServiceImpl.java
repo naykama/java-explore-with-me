@@ -6,12 +6,8 @@ import ru.practicum.ewm.dto.stats.EventDto;
 import ru.practicum.ewm.dto.stats.EventGetDto;
 import ru.practicum.ewm.server.stats.EventMapper;
 import ru.practicum.ewm.server.stats.StatRepository;
-import ru.practicum.ewm.server.stats.entity.EventForGet;
-import ru.practicum.ewm.server.stats.service.StatService;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToDate;
 
@@ -27,7 +23,7 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<EventGetDto> findEvents(String start, String end, String[] uris, boolean unique) {
-        List<EventForGet> events;
+        List<EventGetDto> events;
         if (!unique) {
             if (uris == null) {
                 events = repository.findWithNoUniqueIp(convertToDate(start), convertToDate(end));
@@ -41,9 +37,6 @@ public class StatServiceImpl implements StatService {
                 events = repository.findWithUniqueIpByUris(convertToDate(start), convertToDate(end), List.of(uris));
             }
         }
-        return events.stream()
-                .map(EventMapper::convertToGetDto)
-                .sorted(Comparator.comparingLong(EventGetDto::getHits).reversed())
-                .collect(Collectors.toList());
+        return events;
     }
 }

@@ -1,10 +1,13 @@
 package ru.practicum.ewm.service.implementation;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
+import ru.practicum.ewm.entity.exception.AlreadyExistException;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.UserService;
@@ -19,11 +22,17 @@ import static ru.practicum.ewm.utils.CustomPage.getPage;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     public UserDto createUser(UserShortDto user) {
-        return convertToDto(userRepository.save(convertToEntity(user)));
+        try {
+            return convertToDto(userRepository.save(convertToEntity(user)));
+        } catch (DataIntegrityViolationException e) {
+            log.error("User with email = {} is already exists", user.getEmail());
+            throw new AlreadyExistException(String.format("User with email = %s is already exists", user.getEmail()));
+        }
     }
 
     public List<UserDto> findUsers(Long[] ids, int from, int size) {

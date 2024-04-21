@@ -28,6 +28,7 @@ import static ru.practicum.ewm.utils.CustomPage.getPage;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    @Override
     public UserDto createUser(UserShortDto user) {
         try {
             return convertToDto(userRepository.save(convertToEntity(user)));
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     public List<UserDto> findUsers(Long[] ids, int from, int size) {
         Pageable pageConfig = getPage(from, size);
         if (ids == null) {
@@ -50,6 +52,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     public void deleteUserById(long userId) {
         try {
             userRepository.deleteById(userId);

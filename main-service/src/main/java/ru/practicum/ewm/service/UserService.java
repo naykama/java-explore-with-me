@@ -9,4 +9,6 @@ public interface UserService {
     UserDto createUser(UserShortDto user);
 
     List<UserDto> findUsers(Long[] ids, int from, int size);
+
+    void deleteUserById(long userId);
 }

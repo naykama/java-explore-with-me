@@ -3,11 +3,13 @@ package ru.practicum.ewm.service.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 import ru.practicum.ewm.entity.exception.AlreadyExistException;
+import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.UserService;
@@ -45,6 +47,15 @@ public class UserServiceImpl implements UserService {
            return userRepository.findByIdIn(Arrays.asList(ids), pageConfig).stream()
                    .map(UserMapper::convertToDto)
                    .collect(Collectors.toList());
+        }
+    }
+
+    public void deleteUserById(long userId) {
+        try {
+            userRepository.deleteById(userId);
+        } catch (EmptyResultDataAccessException e) {
+            log.error("User with id = {} not found", userId);
+            throw new NotFoundException(String.format("User with id = %d not found", userId));
         }
     }
 }

@@ -35,4 +35,11 @@ public class UserController {
         log.info("Finding users");
         return userService.findUsers(ids, from, size);
     }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void deleteUserById(@PathVariable long userId) {
+        log.info("Deleting user with id = {}", userId);
+        userService.deleteUserById(userId);
+    }
 }

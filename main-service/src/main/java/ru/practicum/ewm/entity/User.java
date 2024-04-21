@@ -1,27 +1,32 @@
 package ru.practicum.ewm.entity;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Getter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private final String email;
-    private final String name;
+    private Long id;
+    private String email;
+    private String name;
+
+    public User(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
-        return id == ((User) o).getId();
+        return id != null && id.equals(((User) o).getId());
     }
 
     @Override

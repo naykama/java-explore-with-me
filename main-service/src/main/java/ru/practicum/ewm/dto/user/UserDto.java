@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class UserDto extends UserShortDto {
-    private final long id;
+    private final Long id;
 
-    public UserDto(long id, String email, String name) {
+    public UserDto(Long id, String email, String name) {
         super(email, name);
         this.id  = id;
     }

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "categories")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class Category {
     @Id

@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-//@RequestMapping(path = "/admin/categories")
 @Validated
 @Slf4j
 public class CategoryController {

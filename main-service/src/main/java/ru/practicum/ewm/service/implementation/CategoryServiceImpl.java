@@ -11,7 +11,6 @@ import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.exception.AlreadyExistException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.CategoryMapper;
-import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.repository.CategoryRepository;
 import ru.practicum.ewm.service.CategoryService;
 

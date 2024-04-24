@@ -18,7 +18,6 @@ public class AfterNowDateValidator implements ConstraintValidator<ValidDate, Str
             return false;
         }
         LocalDateTime existDate = convertToDate(value);
-        return Duration.between(existDate, LocalDateTime.now()).getSeconds() > MAX_DURATION
-                && existDate.isAfter(LocalDateTime.now());
+        return existDate.isAfter(LocalDateTime.now()) && !existDate.minusHours(2).isBefore(LocalDateTime.now());
     }
 }

@@ -11,6 +11,7 @@ import ru.practicum.ewm.service.EventService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,4 +30,19 @@ public class EventController {
         log.info("Creating event ={}", event);
         return eventService.createEvent(userId, event, LocalDateTime.now());
     }
+
+    @GetMapping(PRIVATE_PATH)
+    public List<EventDto> findEventsForUser(@PathVariable long userId,
+                                            @RequestParam(defaultValue = "0") int from,
+                                            @RequestParam(defaultValue = "10") int size) {
+        log.info("Getting all events for user ={}", userId);
+        return eventService.findEventsForUser(userId, from, size);
+    }
+
+    @GetMapping(PRIVATE_PATH + "/{eventId}")
+    public EventDto findEventForUser(@PathVariable long userId, @PathVariable long eventId) {
+        log.info("Getting event for user ={}", userId);
+        return eventService.findEventForUser(userId, eventId);
+    }
+
 }

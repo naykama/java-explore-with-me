@@ -8,6 +8,7 @@ import lombok.ToString;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.entity.Location;
 import ru.practicum.ewm.entity.StateType;
+import ru.practicum.ewm.utils.annotation.ValidDate;
 
 import javax.validation.constraints.*;
 
@@ -25,6 +26,7 @@ public class EventShortDto {
     @JsonProperty("eventDate")
     @NotBlank
     @Pattern(regexp = "\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d")
+    @ValidDate
     private String existDate;
     @NotNull
     private Location location;

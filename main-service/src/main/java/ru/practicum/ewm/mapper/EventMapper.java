@@ -15,18 +15,6 @@ import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;
 public class EventMapper {
     public static Event convertToEntity(EventShortDto eventDto, Category category, LocalDateTime createDate,
                                         User initiator) {
-//        return Event.builder()
-//                .annotation(eventDto.getAnnotation())
-//                .category(category)
-//                .description(eventDto.getDescription())
-//                .existDate(existDate)
-//                .locationLat(eventDto.getLocation().getLat())
-//                .locationLon(eventDto.getLocation().getLon())
-//                .isPaid(eventDto.isPaid())
-//                .participantLimit(eventDto.getParticipantLimit())
-//                .isRequestModeration(eventDto.isRequestModeration())
-//                .title(eventDto.getTitle())
-//                .build();
         return Event.builder().annotation(eventDto.getAnnotation()).category(category)
                 .description(eventDto.getDescription())
                 .existDate(convertToDate(eventDto.getExistDate()))

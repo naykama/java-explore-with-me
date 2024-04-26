@@ -1,10 +1,7 @@
 package ru.practicum.ewm.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.user.UserWithoutEmailDto;
 import ru.practicum.ewm.entity.Location;
@@ -14,12 +11,14 @@ import ru.practicum.ewm.entity.StateType;
 @AllArgsConstructor
 @Setter
 @Getter
+@ToString
 public class EventDto extends EventShortDto {
     private long id;
     private CategoryDto category;
     @JsonProperty("createdOn")
     private String createDate;
     private UserWithoutEmailDto initiator;
+    private StateType state;
 ////    private int confirmedRequests;
 //    @JsonProperty("publishedOn")
 //    private String publishDate;
@@ -36,6 +35,7 @@ public class EventDto extends EventShortDto {
         this.id = id;
         this.createDate = createDate;
         this.initiator = initiator;
+        this.state = state;
 //                category.getId(), description, existDate, location, isPaid, participantLimit, isRequestModeration, title);
 ////        this.confirmedRequests = confirmedRequests;
 //        this.createDate = createDate;

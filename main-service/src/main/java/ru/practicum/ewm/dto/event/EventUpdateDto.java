@@ -7,48 +7,31 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.entity.Location;
-import ru.practicum.ewm.entity.StateType;
 import ru.practicum.ewm.utils.annotation.ValidDate;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class EventShortDto {
-    @NotBlank
+public class EventUpdateDto {
     @Size(min = 20, max = 2000)
     private String annotation;
     private CategoryDto category;
     @Size(min = 20, max = 7000)
     private String  description;
     @JsonProperty("eventDate")
-    @NotBlank
     @Pattern(regexp = "\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d")
     @ValidDate
     private String existDate;
-    @NotNull
     private Location location;
     @JsonProperty("paid")
     private Boolean isPaid;
-    private int participantLimit;
+    private Integer participantLimit;
     @JsonProperty("requestModeration")
-    private boolean isRequestModeration;
-    @NotBlank
+    private Boolean isRequestModeration;
     @Size(min = 3, max = 120, message = "String size must be 3 - 120 characters")
     private String  title;
-
-    public EventShortDto(String annotation, Long category, String description, String existDate, Location location,
-                         Boolean isPaid, int participantLimit, boolean isRequestModeration, String title) {
-        this.annotation = annotation;
-        this.category = new CategoryDto(category);
-        this.description = description;
-        this.existDate = existDate;
-        this.location = location;
-        this.isPaid = isPaid;
-        this.participantLimit = participantLimit;
-        this.isRequestModeration = isRequestModeration;
-        this.title = title;
-    }
 }

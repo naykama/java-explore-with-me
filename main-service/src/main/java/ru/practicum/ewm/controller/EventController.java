@@ -2,6 +2,7 @@ package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,11 +48,23 @@ public class EventController {
     }
 
     @PatchMapping(PRIVATE_PATH + "/{eventId}")
-public EventDto updateEvent(@PathVariable long userId,
+    public EventDto updateEvent(@PathVariable long userId,
                             @PathVariable long eventId,
                             @Valid @RequestBody EventUpdateDto event) {
         log.info("Updating event for user ={}", userId);
         return eventService.updateEvent(userId, eventId, event);
+    }
+
+    @GetMapping(ADMIN_PATH)
+    public List<EventDto> findAllForAdmin(@RequestParam(required = false) Long[] users,
+                                          @RequestParam(required = false) String[] states,
+                                          @RequestParam(required = false) Long[] categories,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                          @RequestParam(defaultValue = "0") int from,
+                                          @RequestParam(defaultValue = "10") int size) {
+        log.info("Getting events for admin, rangeStart = {}, users = {}, rangeEnd = {}", rangeStart, users, rangeEnd);
+        return eventService.findAllForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
 }

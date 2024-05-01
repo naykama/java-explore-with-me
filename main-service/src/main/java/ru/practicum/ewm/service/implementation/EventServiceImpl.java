@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
@@ -19,6 +20,7 @@ import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.EventService;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +81,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> {
             log.error("User with id = {} not found", userId);
             throw new NotFoundException(String.format("User with id =  %d not found", userId));
-                }
+            }
         );
         if (event.getState() == StateType.PUBLISHED) {
             log.error("Cannot update published events");
@@ -87,6 +89,22 @@ public class EventServiceImpl implements EventService {
         }
         EventDto dto = convertToDto(eventRepository.save(updateEventFromDto(newEvent, event)));
         return dto;
+    }
+
+    @Override
+    public List<EventDto> findAllForAdmin(Long[] users, String[] states, Long[] categories, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                   int from, int size) {
+        Pageable pageConfig = getPage(from, size);
+        return eventRepository.findAllByParams(
+                                                        users == null || users[0] == 0 ? null : Arrays.asList(users),
+                                                        states == null ? null : Arrays.stream(states)
+                                                                                .map(StateType::valueOf)
+                                                                                .collect(Collectors.toList()),
+                                                        categories == null || categories[0] == 0 ? null : Arrays.asList(categories),
+                                                        rangeStart, rangeEnd, pageConfig)
+                .stream()
+                .map(EventMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private Event updateEventFromDto(EventUpdateDto dto, Event entity) {

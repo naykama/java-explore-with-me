@@ -35,12 +35,13 @@ public class Event {
     @Column(name = "location_lon")
     private float locationLon;
     @Column(name = "paid")
-    private boolean isPaid;
+    private Boolean isPaid;
     @Column(name = "participant_limit")
     private int participantLimit;
     @Column(name = "request_moderation")
     private boolean isRequestModeration;
     private String  title;
+    @Enumerated(EnumType.STRING)
     private StateType state;
 //    @Column(name = "publish_date")
 //    private LocalDateTime publishDate;

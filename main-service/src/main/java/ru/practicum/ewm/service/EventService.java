@@ -15,4 +15,7 @@ public interface EventService {
     EventDto findEventForUser(long userId, long eventId);
 
     EventDto updateEvent(long userId, long eventId, EventUpdateDto event);
+
+    List<EventDto> findAllForAdmin(Long[] users, String[] states, Long[] categories, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                   int from, int size);
 }

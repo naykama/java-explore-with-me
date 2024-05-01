@@ -10,6 +10,7 @@ import ru.practicum.ewm.entity.Location;
 import ru.practicum.ewm.utils.annotation.ValidDate;
 
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 @NoArgsConstructor
@@ -29,6 +30,7 @@ public class EventUpdateDto {
     private Location location;
     @JsonProperty("paid")
     private Boolean isPaid;
+    @Positive
     private Integer participantLimit;
     @JsonProperty("requestModeration")
     private Boolean isRequestModeration;

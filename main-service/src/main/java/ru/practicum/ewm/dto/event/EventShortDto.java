@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.entity.Location;
-import ru.practicum.ewm.entity.StateType;
 import ru.practicum.ewm.utils.annotation.ValidDate;
 
 import javax.validation.constraints.*;
@@ -21,6 +20,7 @@ public class EventShortDto {
     @Size(min = 20, max = 2000)
     private String annotation;
     private CategoryDto category;
+    @NotBlank
     @Size(min = 20, max = 7000)
     private String  description;
     @JsonProperty("eventDate")
@@ -31,16 +31,17 @@ public class EventShortDto {
     @NotNull
     private Location location;
     @JsonProperty("paid")
-    private Boolean isPaid;
-    private int participantLimit;
+    private boolean isPaid = false;
+    @PositiveOrZero
+    private int participantLimit = 0;
     @JsonProperty("requestModeration")
-    private boolean isRequestModeration;
+    private boolean isRequestModeration = true;
     @NotBlank
     @Size(min = 3, max = 120, message = "String size must be 3 - 120 characters")
     private String  title;
 
     public EventShortDto(String annotation, Long category, String description, String existDate, Location location,
-                         Boolean isPaid, int participantLimit, boolean isRequestModeration, String title) {
+                         Boolean isPaid, Integer participantLimit, Boolean isRequestModeration, String title) {
         this.annotation = annotation;
         this.category = new CategoryDto(category);
         this.description = description;

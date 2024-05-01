@@ -21,7 +21,7 @@ public class EventMapper {
                 .createDate(createDate).initiator(initiator)
                 .locationLat(eventDto.getLocation().getLat())
                 .locationLon(eventDto.getLocation().getLon())
-                .isPaid(eventDto.getIsPaid())
+                .isPaid(eventDto.isPaid())
                 .participantLimit(eventDto.getParticipantLimit())
                 .isRequestModeration(eventDto.isRequestModeration())
                 .title(eventDto.getTitle()).build();
@@ -31,7 +31,9 @@ public class EventMapper {
         return new EventDto(event.getAnnotation(), event.getId(), CategoryMapper.convertToDto(event.getCategory()),
                 convertToString(event.getCreateDate()), event.getDescription(), convertToString(event.getExistDate()),
                 UserMapper.convertToWithoutEmailDto(event.getInitiator()),
-                new Location(event.getLocationLat(), event.getLocationLon()), event.isPaid(), event.getParticipantLimit(),
+                new Location(event.getLocationLat(), event.getLocationLon()),
+                event.getIsPaid(),
+                event.getParticipantLimit(),
                 event.isRequestModeration(), event.getTitle(), event.getState());
 //                CategoryMapper.convertToDto(event.getCategory()), event.getDescription(),
 //                convertToString(event.getExistDate()),

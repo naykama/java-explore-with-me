@@ -6,10 +6,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.event.EventAdminUpdateDto;
+import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
-import ru.practicum.ewm.dto.event.EventUpdateDto;
+import ru.practicum.ewm.dto.event.update.EventUpdateDto;
 import ru.practicum.ewm.service.EventService;
 
 import javax.validation.Valid;
@@ -70,7 +70,7 @@ public class EventController {
 
     @PatchMapping(ADMIN_PATH + "/{eventId}")
     public EventDto updateEventByAdmin(@PathVariable long eventId, @Valid @RequestBody EventAdminUpdateDto updateParams) {
-        log.info("Updating event with id = {} by admin", eventId);
+        log.info("Updating event with id = {} by admin, params = {}", eventId, updateParams);
         return eventService.updateEventByAdmin(eventId, updateParams);
     }
 

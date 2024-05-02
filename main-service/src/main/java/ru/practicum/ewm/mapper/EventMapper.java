@@ -34,11 +34,6 @@ public class EventMapper {
                 new Location(event.getLocationLat(), event.getLocationLon()),
                 event.getIsPaid(),
                 event.getParticipantLimit(),
-                event.isRequestModeration(), event.getTitle(), event.getState());
-//                CategoryMapper.convertToDto(event.getCategory()), event.getDescription(),
-//                convertToString(event.getExistDate()),
-//                new Location(event.getLocationLat(), event.getLocationLon()),
-//                event.isPaid(), event.getParticipantLimit(), event.isRequestModeration(), event.getTitle(),
-//                convertToString(event.getCreateDate()), convertToString(event.getPublishDate()), event.getState(), event.getId());
+                event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()));
     }
 }

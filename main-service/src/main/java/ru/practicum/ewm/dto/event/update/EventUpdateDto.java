@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.event;
+package ru.practicum.ewm.dto.event.update;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

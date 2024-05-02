@@ -11,12 +11,14 @@ import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
 
-    @ExceptionHandler({AlreadyExistException.class, ConflictException.class})
+    @ExceptionHandler({ConflictException.class, AlreadyExistException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleAlreadyExistException(final ConflictException e) {
         log.error("Error 409 {}", e.getMessage());
@@ -36,5 +38,19 @@ public class ErrorHandler {
     public ErrorResponse handleNotCorrectRequestException(final RuntimeException e) {
         log.error("Error 400 {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleException(final Exception e) {
+        log.error("500 {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage(), getStackTrace(e));
+    }
+
+    private String getStackTrace(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 }

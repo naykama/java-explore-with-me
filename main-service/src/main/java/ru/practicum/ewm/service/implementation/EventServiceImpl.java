@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.dto.event.EventDto;
+import ru.practicum.ewm.dto.event.EventShortDto;
+import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
+import ru.practicum.ewm.dto.event.update.EventBaseUpdateDto;
+import ru.practicum.ewm.dto.event.update.EventUpdateDto;
 import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.Event;
+import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.entity.enums.AdminActionType;
 import ru.practicum.ewm.entity.enums.StateType;
-import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.entity.enums.UserActionType;
 import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
@@ -119,14 +123,18 @@ public class EventServiceImpl implements EventService {
                 }
         );
         if (newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT && event.getState() != StateType.PENDING
-            || newEvent.getStateAction() == AdminActionType.REJECT_EVENT && event.getState() != StateType.PUBLISHED) {
+            || newEvent.getStateAction() == AdminActionType.REJECT_EVENT && event.getState() == StateType.PUBLISHED) {
             log.error("Can publish only pending events and cannot reject already published events");
             throw new ConflictException("Can publish only pending events and cannot reject already published events");
         }
         Event updatedEvent = updateEventFromDto(newEvent, event);
         if (newEvent.getStateAction() != null) {
-            updatedEvent.setState(newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT
-                    ? StateType.PUBLISHED : StateType.CANCELED);
+            if (newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT) {
+                updatedEvent.setState(StateType.PUBLISHED);
+                updatedEvent.setPublishDate(LocalDateTime.now());
+            } else {
+                updatedEvent.setState(StateType.CANCELED);
+            }
         }
         return convertToDto(eventRepository.save(updatedEvent));
     }
@@ -160,11 +168,9 @@ public class EventServiceImpl implements EventService {
         if (dto.getTitle() != null) {
             entity.setTitle(dto.getTitle());
         }
-//        if (dto.getStateAction() != null) {
-//            entity.setState(dto.getStateAction() == UserActionType.CANCEL_REVIEW
-//                                                    ? StateType.CANCELED : StateType.PENDING);
-//        }
-        log.info("Entity: {}", entity);
+        if (dto.getIsPaid() != null) {
+            entity.setIsPaid(dto.getIsPaid());
+        }
         return entity;
     }
 

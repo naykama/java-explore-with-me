@@ -44,8 +44,8 @@ public class Event {
     private String  title;
     @Enumerated(EnumType.STRING)
     private StateType state;
-//    @Column(name = "publish_date")
-//    private LocalDateTime publishDate;
+    @Column(name = "publish_date")
+    private LocalDateTime publishDate;
 //    private long views;
 
     @Override

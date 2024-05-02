@@ -32,4 +32,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
                                 @Param("rangeStart") LocalDateTime rangeStart,
                                 @Param("rangeEnd") LocalDateTime rangeEnd,
                                 Pageable pageable);
+
+    boolean existsByCategoryId(long categoryId);
 }

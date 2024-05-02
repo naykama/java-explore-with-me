@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.exception.AlreadyExistException;
+import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.repository.CategoryRepository;
+import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.CategoryService;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import static ru.practicum.ewm.utils.CustomPage.getPage;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public CategoryDto createCategory(String name) {
@@ -38,7 +41,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategoryById(Long id) {
-        // Проверить, есть ли события в категории (когда будет создан Event)
+        if (eventRepository.existsByCategoryId(id)) {
+            log.error("Events in the category are exist. Deleting is not able");
+            throw new ConflictException("Events in the category are exist. Deleting is not able");
+        }
         try {
             categoryRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {

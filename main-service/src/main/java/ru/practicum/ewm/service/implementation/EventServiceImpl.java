@@ -122,11 +122,7 @@ public class EventServiceImpl implements EventService {
                     throw new NotFoundException(String.format("Event with id = {} not found", eventId));
                 }
         );
-        if (newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT && event.getState() != StateType.PENDING
-            || newEvent.getStateAction() == AdminActionType.REJECT_EVENT && event.getState() == StateType.PUBLISHED) {
-            log.error("Can publish only pending events and cannot reject already published events");
-            throw new ConflictException("Can publish only pending events and cannot reject already published events");
-        }
+        checkUpdate(event, newEvent);
         Event updatedEvent = updateEventFromDto(newEvent, event);
         if (newEvent.getStateAction() != null) {
             if (newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT) {
@@ -137,6 +133,17 @@ public class EventServiceImpl implements EventService {
             }
         }
         return convertToDto(eventRepository.save(updatedEvent));
+    }
+
+    private void checkUpdate(Event event, EventAdminUpdateDto newEvent) {
+        if (newEvent.getStateAction() != null && event.getState() != StateType.PENDING) {
+            log.error("Can publish and reject only pending events");
+            throw new ConflictException("Can publish and reject only pending events");
+        }
+        if (event.getExistDate().minusHours(1).isBefore(LocalDateTime.now())) {
+            log.error("Can change events which are later then one hour from now");
+            throw new ConflictException("Can change events which are later then one hour from now");
+        }
     }
 
     private Event updateEventFromDto(EventBaseUpdateDto dto, Event entity) {
@@ -173,7 +180,5 @@ public class EventServiceImpl implements EventService {
         }
         return entity;
     }
-
-
 
 }

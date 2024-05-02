@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.dto.event.EventDto;
-import ru.practicum.ewm.dto.event.EventShortDto;
-import ru.practicum.ewm.dto.event.EventUpdateDto;
+import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.Event;
-import ru.practicum.ewm.entity.StateType;
+import ru.practicum.ewm.entity.enums.AdminActionType;
+import ru.practicum.ewm.entity.enums.StateType;
 import ru.practicum.ewm.entity.User;
+import ru.practicum.ewm.entity.enums.UserActionType;
 import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -79,16 +79,20 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto updateEvent(long userId, long eventId, EventUpdateDto newEvent) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> {
-            log.error("User with id = {} not found", userId);
-            throw new NotFoundException(String.format("User with id =  %d not found", userId));
+            log.error("Event with id = {} and initiatorId = {}  not found", eventId, userId);
+            throw new NotFoundException(String.format("Event with id = %d and initiatorId = %d not found",eventId, userId));
             }
         );
         if (event.getState() == StateType.PUBLISHED) {
             log.error("Cannot update published events");
             throw new ConflictException("Cannot update published events");
         }
-        EventDto dto = convertToDto(eventRepository.save(updateEventFromDto(newEvent, event)));
-        return dto;
+        Event updatedEvent = updateEventFromDto(newEvent, event);
+        if (newEvent.getStateAction() != null) {
+            updatedEvent.setState(newEvent.getStateAction() == UserActionType.CANCEL_REVIEW
+                                                    ? StateType.CANCELED : StateType.PENDING);
+        }
+        return convertToDto(eventRepository.save(updatedEvent));
     }
 
     @Override
@@ -107,11 +111,30 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    private Event updateEventFromDto(EventUpdateDto dto, Event entity) {
+    @Override
+    public EventDto updateEventByAdmin(long eventId, EventAdminUpdateDto newEvent) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> {
+                    log.error("Event with id = {} not found", eventId);
+                    throw new NotFoundException(String.format("Event with id = {} not found", eventId));
+                }
+        );
+        if (newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT && event.getState() != StateType.PENDING
+            || newEvent.getStateAction() == AdminActionType.REJECT_EVENT && event.getState() != StateType.PUBLISHED) {
+            log.error("Can publish only pending events and cannot reject already published events");
+            throw new ConflictException("Can publish only pending events and cannot reject already published events");
+        }
+        Event updatedEvent = updateEventFromDto(newEvent, event);
+        if (newEvent.getStateAction() != null) {
+            updatedEvent.setState(newEvent.getStateAction() == AdminActionType.PUBLISH_EVENT
+                    ? StateType.PUBLISHED : StateType.CANCELED);
+        }
+        return convertToDto(eventRepository.save(updatedEvent));
+    }
+
+    private Event updateEventFromDto(EventBaseUpdateDto dto, Event entity) {
         if (dto == null) {
             return entity;
         }
-
         if (dto.getAnnotation() != null) {
             entity.setAnnotation(dto.getAnnotation());
         }
@@ -120,6 +143,7 @@ public class EventServiceImpl implements EventService {
                 log.error("Category with id = {} not found", dto.getCategory().getId());
                 throw new NotFoundException(String.format("Category with id = %d not found", dto.getCategory().getId()));
             });
+            entity.setCategory(category);
         }
         if (dto.getDescription() != null) {
             entity.setDescription(dto.getDescription());
@@ -136,8 +160,14 @@ public class EventServiceImpl implements EventService {
         if (dto.getTitle() != null) {
             entity.setTitle(dto.getTitle());
         }
-        entity.setState(StateType.CANCELED);
+//        if (dto.getStateAction() != null) {
+//            entity.setState(dto.getStateAction() == UserActionType.CANCEL_REVIEW
+//                                                    ? StateType.CANCELED : StateType.PENDING);
+//        }
         log.info("Entity: {}", entity);
         return entity;
     }
+
+
+
 }

@@ -5,7 +5,7 @@ import lombok.*;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.user.UserWithoutEmailDto;
 import ru.practicum.ewm.entity.Location;
-import ru.practicum.ewm.entity.StateType;
+import ru.practicum.ewm.entity.enums.StateType;
 
 @NoArgsConstructor
 @AllArgsConstructor

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.ewm.entity.Event;
-import ru.practicum.ewm.entity.StateType;
+import ru.practicum.ewm.entity.enums.StateType;
 
 import java.time.LocalDateTime;
 import java.util.List;

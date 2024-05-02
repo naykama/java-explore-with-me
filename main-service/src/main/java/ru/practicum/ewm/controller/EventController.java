@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.dto.event.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.EventUpdateDto;
@@ -59,12 +60,18 @@ public class EventController {
     public List<EventDto> findAllForAdmin(@RequestParam(required = false) Long[] users,
                                           @RequestParam(required = false) String[] states,
                                           @RequestParam(required = false) Long[] categories,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                           @RequestParam(defaultValue = "0") int from,
                                           @RequestParam(defaultValue = "10") int size) {
         log.info("Getting events for admin, rangeStart = {}, users = {}, rangeEnd = {}", rangeStart, users, rangeEnd);
         return eventService.findAllForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+    }
+
+    @PatchMapping(ADMIN_PATH + "/{eventId}")
+    public EventDto updateEventByAdmin(@PathVariable long eventId, @Valid @RequestBody EventAdminUpdateDto updateParams) {
+        log.info("Updating event with id = {} by admin", eventId);
+        return eventService.updateEventByAdmin(eventId, updateParams);
     }
 
 }

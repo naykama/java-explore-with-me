@@ -1,6 +1,7 @@
 package ru.practicum.ewm.entity;
 
 import lombok.*;
+import ru.practicum.ewm.entity.enums.StateType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

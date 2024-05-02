@@ -4,12 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.ewm.entity.enums.UserActionType;
+import ru.practicum.ewm.entity.enums.AdminActionType;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class EventUpdateDto extends EventBaseUpdateDto {
-    private UserActionType stateAction;
+public class EventAdminUpdateDto extends EventBaseUpdateDto {
+    private AdminActionType stateAction;
 }

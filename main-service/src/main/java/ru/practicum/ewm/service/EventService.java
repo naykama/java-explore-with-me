@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service;
 
+import ru.practicum.ewm.dto.event.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.EventUpdateDto;
@@ -18,4 +19,6 @@ public interface EventService {
 
     List<EventDto> findAllForAdmin(Long[] users, String[] states, Long[] categories, LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                    int from, int size);
+
+    EventDto updateEventByAdmin(long eventId, EventAdminUpdateDto updateParams);
 }

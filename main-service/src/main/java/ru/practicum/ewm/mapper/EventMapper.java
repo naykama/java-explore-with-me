@@ -34,6 +34,7 @@ public class EventMapper {
                 new Location(event.getLocationLat(), event.getLocationLon()),
                 event.getIsPaid(),
                 event.getParticipantLimit(),
-                event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()));
+                event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()),
+                event.getViews());
     }
 }

@@ -1,5 +1,8 @@
 package ru.practicum.ewm.service;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
+import ru.practicum.ewm.controller.EventController;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
@@ -21,4 +24,8 @@ public interface EventService {
                                    int from, int size);
 
     EventDto updateEventByAdmin(long eventId, EventAdminUpdateDto updateParams);
+
+    List<EventDto> findAllEvents(String text, Long[] categories, Boolean isPaid, LocalDateTime rangeStart,
+                                 LocalDateTime rangeEnd, boolean isOnlyAvailable, EventController.SortType sort,
+                                 int from, int size);
 }

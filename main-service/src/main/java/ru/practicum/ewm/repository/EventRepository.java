@@ -34,4 +34,21 @@ public interface EventRepository extends CrudRepository<Event, Long> {
                                 Pageable pageable);
 
     boolean existsByCategoryId(long categoryId);
+
+    @Query("SELECT event FROM Event event\n" +
+            "JOIN FETCH event.category as cat\n" +
+            "WHERE (:text IS NULL OR LOWER(event.annotation) LIKE CONCAT('%', LOWER(:text), '%') OR LOWER(event.description) LIKE CONCAT('%', LOWER(:text), '%')) AND\n" +
+            "(COALESCE(:categories) IS NULL OR cat.id IN :categories) AND\n" +
+            "(:isPaid IS NULL OR event.isPaid = :isPaid) AND\n" +
+            "(event.existDate >= :rangeStart) AND\n" +
+            "(CAST(:rangeEnd AS timestamp) is null OR event.existDate <= :rangeEnd) AND\n" +
+            "(:isOnlyAvailable = false OR event.participantLimit > 0)")
+    List<Event> findAllForPublic(
+                                @Param("text") String text,
+                                @Param("categories") List<Long> categories,
+                                @Param("isPaid") Boolean isPaid,
+                                @Param("rangeStart") LocalDateTime rangeStart,
+                                @Param("rangeEnd") LocalDateTime rangeEnd,
+                                @Param("isOnlyAvailable") boolean isOnlyAvailable,
+                                Pageable pageable);
 }

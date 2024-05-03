@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.controller.EventController;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
@@ -25,6 +26,7 @@ import ru.practicum.ewm.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -133,6 +135,35 @@ public class EventServiceImpl implements EventService {
             }
         }
         return convertToDto(eventRepository.save(updatedEvent));
+    }
+
+    @Override
+    public List<EventDto> findAllEvents(String text, Long[] categories, Boolean isPaid, LocalDateTime rangeStart,
+                                        LocalDateTime rangeEnd, boolean isOnlyAvailable, EventController.SortType sort,
+                                        int from, int size) {
+        Pageable pageConfig = getPage(from, size);
+        return sort == null ?
+                eventRepository.findAllForPublic(text,
+                        categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
+                        rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
+                        pageConfig).stream()
+                    .map(EventMapper::convertToDto)
+                    .collect(Collectors.toList())
+                : sort == EventController.SortType.EVENT_DATE ?
+                eventRepository.findAllForPublic(text,
+                                categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
+                                rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
+                                pageConfig).stream()
+                        .sorted(Comparator.comparing(Event::getExistDate))
+                        .map(EventMapper::convertToDto)
+                        .collect(Collectors.toList())
+                : eventRepository.findAllForPublic(text,
+                        categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
+                        rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
+                        pageConfig).stream()
+                .sorted(Comparator.comparing(Event::getViews))
+                .map(EventMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private void checkUpdate(Event event, EventAdminUpdateDto newEvent) {

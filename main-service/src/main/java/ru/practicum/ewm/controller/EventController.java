@@ -74,4 +74,23 @@ public class EventController {
         return eventService.updateEventByAdmin(eventId, updateParams);
     }
 
+    @GetMapping(PUBLIC_PATH)
+    public List<EventDto> findAllEvents(@RequestParam(required = false) String text,
+                                        @RequestParam(required = false) Long[] categories,
+                                        @RequestParam(name = "paid", required = false) Boolean isPaid,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                        @RequestParam(name = "onlyAvailable", defaultValue = "false") boolean isOnlyAvailable,
+                                        @RequestParam(required = false) SortType sort,
+                                        @RequestParam(defaultValue = "0") int from,
+                                        @RequestParam(defaultValue = "10") int size) {
+        log.info("Finding events for public");
+        return eventService.findAllEvents(text, categories, isPaid, rangeStart, rangeEnd, isOnlyAvailable, sort, from, size);
+    }
+
+    public enum SortType {
+        EVENT_DATE,
+        VIEWS
+    }
+
 }

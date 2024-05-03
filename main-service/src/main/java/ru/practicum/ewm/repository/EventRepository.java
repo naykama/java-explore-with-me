@@ -42,7 +42,8 @@ public interface EventRepository extends CrudRepository<Event, Long> {
             "(:isPaid IS NULL OR event.isPaid = :isPaid) AND\n" +
             "(event.existDate >= :rangeStart) AND\n" +
             "(CAST(:rangeEnd AS timestamp) is null OR event.existDate <= :rangeEnd) AND\n" +
-            "(:isOnlyAvailable = false OR event.participantLimit > 0)")
+            "(:isOnlyAvailable = false OR event.participantLimit > 0) AND\n" +
+            "(event.state = 'PUBLISHED')")
     List<Event> findAllForPublic(
                                 @Param("text") String text,
                                 @Param("categories") List<Long> categories,
@@ -51,4 +52,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
                                 @Param("rangeEnd") LocalDateTime rangeEnd,
                                 @Param("isOnlyAvailable") boolean isOnlyAvailable,
                                 Pageable pageable);
+
+    Optional<Event> findByIdAndState(long eventId, StateType state);
 }

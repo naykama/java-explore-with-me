@@ -166,6 +166,16 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public EventDto findEventById(long eventId) {
+        return convertToDto(eventRepository.findByIdAndState(eventId, StateType.PUBLISHED).orElseThrow(() -> {
+                    log.error("Event with id = {} not found", eventId);
+                    throw new NotFoundException(String.format("Event with id = %d not found", eventId));
+                }
+            )
+        );
+    }
+
     private void checkUpdate(Event event, EventAdminUpdateDto newEvent) {
         if (newEvent.getStateAction() != null && event.getState() != StateType.PENDING) {
             log.error("Can publish and reject only pending events");

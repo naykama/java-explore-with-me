@@ -2,6 +2,7 @@ package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.After;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -64,6 +65,7 @@ public class EventController {
                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                           @RequestParam(defaultValue = "0") int from,
                                           @RequestParam(defaultValue = "10") int size) {
+        checkDates(rangeStart, rangeEnd);
         log.info("Getting events for admin, rangeStart = {}, users = {}, rangeEnd = {}", rangeStart, users, rangeEnd);
         return eventService.findAllForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
@@ -84,13 +86,27 @@ public class EventController {
                                         @RequestParam(required = false) SortType sort,
                                         @RequestParam(defaultValue = "0") int from,
                                         @RequestParam(defaultValue = "10") int size) {
+        checkDates(rangeStart, rangeEnd);
         log.info("Finding events for public");
         return eventService.findAllEvents(text, categories, isPaid, rangeStart, rangeEnd, isOnlyAvailable, sort, from, size);
+    }
+
+    @GetMapping(PUBLIC_PATH + "/{id}")
+    public EventDto findEventById(@PathVariable(name = "id") long eventId) {
+        log.info("Finding event with id = {} for public", eventId);
+        return eventService.findEventById(eventId);
     }
 
     public enum SortType {
         EVENT_DATE,
         VIEWS
+    }
+
+    private void checkDates(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
+        if (rangeStart != null && rangeEnd != null && !rangeEnd.isAfter(rangeStart)) {
+            log.error("The dates in range are not correct");
+            throw new IllegalArgumentException("The dates in range are not correct");
+        }
     }
 
 }

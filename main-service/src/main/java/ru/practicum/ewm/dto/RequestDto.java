@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import ru.practicum.ewm.entity.enums.RequestType;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,5 +17,5 @@ public class RequestDto {
     private long requesterId;
     private RequestType status;
     @JsonProperty("created")
-    private LocalDateTime createDate;
+    private String createDate;
 }

@@ -9,6 +9,7 @@ import ru.practicum.ewm.dto.RequestDto;
 import ru.practicum.ewm.service.RequestService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,5 +24,11 @@ public class RequestController {
     public RequestDto createRequest(@PathVariable long userId, @RequestParam long eventId) {
         log.info("Creating request from user id = {} to event = {}", userId, eventId);
         return requestService.createRequest(userId, eventId, LocalDateTime.now());
+    }
+
+    @GetMapping
+    public List<RequestDto> findAllRequests(@PathVariable long userId) {
+        log.info("Finding all requests for user id = {}", userId);
+        return requestService.findAll(userId);
     }
 }

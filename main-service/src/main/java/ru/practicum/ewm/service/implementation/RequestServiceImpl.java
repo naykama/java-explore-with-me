@@ -18,6 +18,8 @@ import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.RequestService;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
 
+    @Override
     public RequestDto createRequest(long userId, long eventId, LocalDateTime createDate) {
         User requester = userRepository.findById(userId).orElseThrow(() -> {
             log.error("User with id = {} not found", userId);
@@ -39,6 +42,13 @@ public class RequestServiceImpl implements RequestService {
         checkCreateRequest(requester, event);
         return RequestMapper.convertToDto(requestRepository.save(Request.builder().requester(requester).event(event)
                 .createDate(createDate).status(event.isRequestModeration() ? RequestType.PENDING : RequestType.CONFIRMED).build()));
+    }
+
+    @Override
+    public List<RequestDto> findAll(long userId) {
+        return requestRepository.findAllByRequesterId(userId).stream()
+                .map(RequestMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private void checkCreateRequest(User requester, Event event) {

@@ -47,9 +47,9 @@ public class EventShortDto {
         this.description = description;
         this.existDate = existDate;
         this.location = location;
-        this.isPaid = isPaid;
+        this.isPaid = isPaid == null ? this.isPaid : isPaid;
         this.participantLimit = participantLimit;
-        this.isRequestModeration = isRequestModeration;
+        this.isRequestModeration = isRequestModeration == null ? this.isRequestModeration : isRequestModeration;
         this.title = title;
     }
 }

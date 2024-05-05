@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.mapper.RequestMapper.convertToDto;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,8 +42,9 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException(String.format("Event with id = %d not found", eventId));
         });
         checkCreateRequest(requester, event);
-        return RequestMapper.convertToDto(requestRepository.save(Request.builder().requester(requester).event(event)
-                .createDate(createDate).status(event.isRequestModeration() ? RequestType.PENDING : RequestType.CONFIRMED).build()));
+        return convertToDto(requestRepository.save(Request.builder().requester(requester).event(event)
+                .createDate(createDate).status(!event.isRequestModeration() || event.getParticipantLimit() == 0 ?
+                        RequestType.CONFIRMED : RequestType.PENDING).build()));
     }
 
     @Override
@@ -49,6 +52,20 @@ public class RequestServiceImpl implements RequestService {
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(RequestMapper::convertToDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public RequestDto cancelRequest(long userId, long requestId) {
+        Request request = requestRepository.findById(requestId).orElseThrow(() -> {
+            log.error("Request with id = {} not found", requestId);
+            return new NotFoundException(String.format("Request with id = %d not found", requestId));
+        });
+        if (request.getRequester().getId() != userId) {
+            log.error("User with id = {} is not a requester", userId);
+            throw  new ConflictException(String.format("User with id = %d not a requester", userId));
+        }
+        request.setStatus(RequestType.CANCELED);
+        return convertToDto(requestRepository.save(request));
     }
 
     private void checkCreateRequest(User requester, Event event) {

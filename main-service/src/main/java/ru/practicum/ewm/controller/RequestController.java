@@ -31,4 +31,10 @@ public class RequestController {
         log.info("Finding all requests for user id = {}", userId);
         return requestService.findAll(userId);
     }
+
+    @PatchMapping("/{requestId}/cancel")
+    public RequestDto cancelRequest(@PathVariable long userId, @PathVariable long requestId) {
+        log.info("Cancel request id = {} from user id = {}", userId, requestId);
+        return requestService.cancelRequest(userId, requestId);
+    }
 }

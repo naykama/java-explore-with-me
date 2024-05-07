@@ -6,10 +6,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventUpdateDto;
+import ru.practicum.ewm.dto.request.RequestStatusGetDto;
+import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 import ru.practicum.ewm.service.EventService;
 
 import javax.validation.Valid;
@@ -94,6 +97,19 @@ public class EventController {
     public EventDto findEventById(@PathVariable(name = "id") long eventId) {
         log.info("Finding event with id = {} for public", eventId);
         return eventService.findEventById(eventId);
+    }
+
+    @GetMapping(PRIVATE_PATH + "/{eventId}/requests")
+    public List<RequestDto> findRequestsToEvent(@PathVariable long userId, @PathVariable long eventId) {
+        log.info("Finding requests to event id = {}", eventId);
+        return eventService.findRequestToEvent(eventId, userId);
+    }
+
+    @PatchMapping(PRIVATE_PATH + "/{eventId}/requests")
+    public RequestStatusGetDto updateRequestStatus(@PathVariable long userId, @PathVariable long eventId,
+                                                   @RequestBody RequestStatusUpdateDto requestUpdateDto) {
+        log.info("update request status for event id = {}", eventId);
+        return eventService.updateRequestsStatus(eventId, userId, requestUpdateDto);
     }
 
     public enum SortType {

@@ -1,10 +1,13 @@
 package ru.practicum.ewm.service;
 
 import ru.practicum.ewm.controller.EventController;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventUpdateDto;
+import ru.practicum.ewm.dto.request.RequestStatusGetDto;
+import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,4 +31,8 @@ public interface EventService {
                                  int from, int size);
 
     EventDto findEventById(long eventId);
+
+    List<RequestDto> findRequestToEvent(long eventId, long userId);
+
+    RequestStatusGetDto updateRequestsStatus(long eventId, long userId, RequestStatusUpdateDto requestUpdateDto);
 }

@@ -1,6 +1,6 @@
 package ru.practicum.ewm.mapper;
 
-import ru.practicum.ewm.dto.RequestDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.entity.Request;
 
 import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;

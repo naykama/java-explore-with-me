@@ -1,7 +1,6 @@
 package ru.practicum.ewm.service;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import ru.practicum.ewm.dto.RequestDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

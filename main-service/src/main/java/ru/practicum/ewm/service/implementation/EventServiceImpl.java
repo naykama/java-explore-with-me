@@ -5,22 +5,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.controller.EventController;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventBaseUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventUpdateDto;
+import ru.practicum.ewm.dto.request.RequestStatusGetDto;
+import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 import ru.practicum.ewm.entity.Category;
 import ru.practicum.ewm.entity.Event;
+import ru.practicum.ewm.entity.Request;
 import ru.practicum.ewm.entity.User;
 import ru.practicum.ewm.entity.enums.AdminActionType;
+import ru.practicum.ewm.entity.enums.RequestType;
 import ru.practicum.ewm.entity.enums.StateType;
 import ru.practicum.ewm.entity.enums.UserActionType;
 import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
+import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.repository.CategoryRepository;
 import ru.practicum.ewm.repository.EventRepository;
+import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.EventService;
 
@@ -42,6 +49,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     public EventDto createEvent(long userId, EventShortDto eventShortDto, LocalDateTime createDate) {
@@ -80,6 +88,17 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException(String.format("Event with id =  %d not found", userId));
         }
         ));
+    }
+
+    @Override
+    public List<RequestDto> findRequestToEvent(long eventId, long userId) {
+        if (!userRepository.existsById(userId) || !eventRepository.existsById(eventId)) {
+            log.error("User with id = {} or Event with id = {} not found", userId, eventId);
+            throw new NotFoundException(String.format("User with id = %d or event with id = %d not found", userId, eventId));
+        }
+        return requestRepository.findAllByEventIdAndEventInitiatorId(eventId, userId).stream()
+                .map(RequestMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -170,10 +189,62 @@ public class EventServiceImpl implements EventService {
     public EventDto findEventById(long eventId) {
         return convertToDto(eventRepository.findByIdAndState(eventId, StateType.PUBLISHED).orElseThrow(() -> {
                     log.error("Event with id = {} not found", eventId);
-                    throw new NotFoundException(String.format("Event with id = %d not found", eventId));
+                    return new NotFoundException(String.format("Event with id = %d not found", eventId));
                 }
             )
         );
+    }
+
+    @Override
+    public RequestStatusGetDto updateRequestsStatus(long eventId, long userId, RequestStatusUpdateDto requestUpdateDto) {
+        List<Request> requests = requestRepository.findAllByEventIdAndEventInitiatorId(eventId, userId);
+        long participantCount = requests.stream()
+                .filter(request -> request.getStatus() == RequestType.CONFIRMED).count();
+        List<Request> updatedRequests = requests.stream()
+                .filter(request -> requestUpdateDto.getRequestIds().contains(request.getId()))
+                .collect(Collectors.toList());
+        if (updatedRequests.size() < requestUpdateDto.getRequestIds().size()) {
+            log.error("Not all request are found. Founded requests: {}", updatedRequests);
+            throw new NotFoundException(String.format("Not all request are found. Founded requests: %s", updatedRequests));
+        }
+        long participantLimit = requests.get(0).getEvent().getParticipantLimit();
+        if (updatedRequests.stream().anyMatch(request -> request.getStatus() != RequestType.PENDING)) {
+            log.error("All requests must have status PENDING");
+            throw new ConflictException("All requests must have status PENDING");
+        }
+        if (participantLimit != 0 && participantCount >= participantLimit) {
+            log.error("Limit of participants is already achieved");
+            throw new ConflictException("Limit of participants is already achieved");
+        }
+        switch (requestUpdateDto.getStatus()) {
+            case REJECTED:
+                for (Request request : updatedRequests) {
+                    request.setStatus(RequestType.REJECTED);
+                    requestRepository.save(request);
+                }
+                break;
+            case CONFIRMED:
+                for (Request request : updatedRequests) {
+                    if (participantCount == participantLimit) {
+                        request.setStatus(RequestType.REJECTED);
+                        requestRepository.save(request);
+                    } else {
+                        request.setStatus(RequestType.CONFIRMED);
+                        participantCount++;
+                        requestRepository.save(request);
+                    }
+                }
+                break;
+        }
+        return new RequestStatusGetDto(
+                updatedRequests.stream()
+                    .filter(request -> request.getStatus() == RequestType.CONFIRMED)
+                    .map(RequestMapper::convertToDto)
+                    .collect(Collectors.toList()),
+                updatedRequests.stream()
+                    .filter(request -> request.getStatus() == RequestType.REJECTED)
+                    .map(RequestMapper::convertToDto)
+                    .collect(Collectors.toList()));
     }
 
     private void checkUpdate(Event event, EventAdminUpdateDto newEvent) {

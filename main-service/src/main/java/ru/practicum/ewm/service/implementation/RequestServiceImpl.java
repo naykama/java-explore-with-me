@@ -3,7 +3,7 @@ package ru.practicum.ewm.service.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.dto.RequestDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.entity.Event;
 import ru.practicum.ewm.entity.Request;
 import ru.practicum.ewm.entity.User;
@@ -81,7 +81,7 @@ public class RequestServiceImpl implements RequestService {
             log.error("You can take part only in published events");
             throw new ConflictException("You can take part only in published events");
         }
-        if (event.getParticipantLimit() != 0 && requestRepository.countByEventIdAndStatusNot(event.getId(), RequestType.CANCELED) >= event.getParticipantLimit()) {
+        if (event.getParticipantLimit() != 0 && requestRepository.countByEventIdAndStatus(event.getId(), RequestType.CONFIRMED) >= event.getParticipantLimit()) {
             log.error("Limit of participants will overload");
             throw new ConflictException("Limit of participants will overload");
         }

@@ -9,7 +9,9 @@ import java.util.List;
 public interface RequestRepository extends CrudRepository<Request, Long> {
     boolean existsByEventIdAndRequesterId(long eventId, long requestId);
 
-    int countByEventIdAndStatusNot(long eventId, RequestType type);
+    int countByEventIdAndStatus(long eventId, RequestType type);
 
     List<Request> findAllByRequesterId(long userId);
+
+    List<Request> findAllByEventIdAndEventInitiatorId(long eventId, long userId);
 }

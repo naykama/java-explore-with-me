@@ -19,15 +19,15 @@ public class EventDto extends EventShortDto {
     private String createDate;
     private UserWithoutEmailDto initiator;
     private StateType state;
-////    private int confirmedRequests;
+    private long confirmedRequests;
     @JsonProperty("publishedOn")
     private String publishDate;
-    private long views;
+    private long views = 0L;
 
     public EventDto(String annotation, long id, CategoryDto category, String createDate, String description,
                     String existDate, UserWithoutEmailDto initiator, Location location, boolean isPaid,
                     int participantLimit, boolean isRequestModeration, String title, StateType state, String publishDate,
-                    long views) {
+                    long views, long confirmedRequests) {
         super(annotation, category.getId(), description, existDate, location, isPaid, participantLimit,
                                                                             isRequestModeration, title);
         this.category = category;
@@ -36,7 +36,7 @@ public class EventDto extends EventShortDto {
         this.initiator = initiator;
         this.state = state;
         this.publishDate = publishDate;
-////        this.confirmedRequests = confirmedRequests;
+        this.confirmedRequests = confirmedRequests;
         this.views = views;
     }
 }

@@ -17,7 +17,7 @@ public interface EventService {
 
     List<EventDto> findEventsForUser(long userId, int from, int size);
 
-    EventDto findEventForUser(long userId, long eventId);
+    EventDto findEventForUser(long userId, long eventId, String clientIp);
 
     EventDto updateEvent(long userId, long eventId, EventUpdateDto event);
 
@@ -30,7 +30,7 @@ public interface EventService {
                                  LocalDateTime rangeEnd, boolean isOnlyAvailable, EventController.SortType sort,
                                  int from, int size);
 
-    EventDto findEventById(long eventId);
+    EventDto findEventById(long eventId, String clientIp);
 
     List<RequestDto> findRequestToEvent(long eventId, long userId);
 

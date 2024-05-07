@@ -46,7 +46,7 @@ public class Event {
     private StateType state;
     @Column(name = "publish_date")
     private LocalDateTime publishDate;
-    private long views;
+//    private long views;
 
     @Override
     public boolean equals(Object o) {

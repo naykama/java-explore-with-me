@@ -5,30 +5,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.controller.EventController;
-import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventBaseUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventUpdateDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.request.RequestStatusGetDto;
 import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
-import ru.practicum.ewm.entity.Category;
-import ru.practicum.ewm.entity.Event;
-import ru.practicum.ewm.entity.Request;
-import ru.practicum.ewm.entity.User;
+import ru.practicum.ewm.entity.*;
 import ru.practicum.ewm.entity.enums.AdminActionType;
 import ru.practicum.ewm.entity.enums.RequestType;
 import ru.practicum.ewm.entity.enums.StateType;
 import ru.practicum.ewm.entity.enums.UserActionType;
 import ru.practicum.ewm.entity.exception.ConflictException;
 import ru.practicum.ewm.entity.exception.NotFoundException;
-import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
-import ru.practicum.ewm.repository.CategoryRepository;
-import ru.practicum.ewm.repository.EventRepository;
-import ru.practicum.ewm.repository.RequestRepository;
-import ru.practicum.ewm.repository.UserRepository;
+import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.EventService;
 
 import java.time.LocalDateTime;
@@ -50,6 +43,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
+    private final ViewRepository viewRepository;
 
     @Override
     public EventDto createEvent(long userId, EventShortDto eventShortDto, LocalDateTime createDate) {
@@ -63,7 +57,8 @@ public class EventServiceImpl implements EventService {
         });
         Event event = convertToEntity(eventShortDto, category, createDate, user);
         event.setState(StateType.PENDING);
-        return convertToDto(eventRepository.save(event));
+        event = eventRepository.save(event);
+        return convertToDto(event,0, getConfirmedRequestsCount(event.getId()));
     }
 
     @Override
@@ -73,21 +68,24 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException(String.format("User with id = %d not found", userId));
         }
         return eventRepository.findByInitiatorId(userId, getPage(from, size)).stream()
-                .map(EventMapper::convertToDto)
+                .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public EventDto findEventForUser(long userId, long eventId) {
+    public EventDto findEventForUser(long userId, long eventId, String clientIp) {
         if (!userRepository.existsById(userId)) {
             log.error("User with id = {} not found", userId);
             throw new NotFoundException(String.format("User with id = %d not found", userId));
         }
-        return convertToDto(eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> {
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() -> {
             log.error("Event not found");
             throw new NotFoundException(String.format("Event with id =  %d not found", userId));
         }
-        ));
+        );
+        EventDto dto = convertToDto(eventRepository.save(event), getViews(eventId), getConfirmedRequestsCount(eventId));
+        setViews(eventId, clientIp);
+        return dto;
     }
 
     @Override
@@ -117,7 +115,7 @@ public class EventServiceImpl implements EventService {
             updatedEvent.setState(newEvent.getStateAction() == UserActionType.CANCEL_REVIEW
                                                     ? StateType.CANCELED : StateType.PENDING);
         }
-        return convertToDto(eventRepository.save(updatedEvent));
+        return convertToDto(eventRepository.save(updatedEvent),getViews(eventId), getConfirmedRequestsCount(eventId));
     }
 
     @Override
@@ -132,7 +130,7 @@ public class EventServiceImpl implements EventService {
                                                         categories == null || categories[0] == 0 ? null : Arrays.asList(categories),
                                                         rangeStart, rangeEnd, pageConfig)
                 .stream()
-                .map(EventMapper::convertToDto)
+                .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -153,7 +151,7 @@ public class EventServiceImpl implements EventService {
                 updatedEvent.setState(StateType.CANCELED);
             }
         }
-        return convertToDto(eventRepository.save(updatedEvent));
+        return convertToDto(eventRepository.save(updatedEvent), getViews(eventId), getConfirmedRequestsCount(eventId));
     }
 
     @Override
@@ -166,7 +164,7 @@ public class EventServiceImpl implements EventService {
                         categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
                         rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
                         pageConfig).stream()
-                    .map(EventMapper::convertToDto)
+                    .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                     .collect(Collectors.toList())
                 : sort == EventController.SortType.EVENT_DATE ?
                 eventRepository.findAllForPublic(text,
@@ -174,25 +172,29 @@ public class EventServiceImpl implements EventService {
                                 rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
                                 pageConfig).stream()
                         .sorted(Comparator.comparing(Event::getExistDate))
-                        .map(EventMapper::convertToDto)
+                        .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                         .collect(Collectors.toList())
                 : eventRepository.findAllForPublic(text,
                         categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
                         rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
                         pageConfig).stream()
-                .sorted(Comparator.comparing(Event::getViews))
-                .map(EventMapper::convertToDto)
+//                .sorted((event) -> Comparator.comparingLong(getViews(event.getId())))
+                .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public EventDto findEventById(long eventId) {
-        return convertToDto(eventRepository.findByIdAndState(eventId, StateType.PUBLISHED).orElseThrow(() -> {
+    public EventDto findEventById(long eventId, String clientIp) {
+        Event event = eventRepository.findByIdAndState(eventId, StateType.PUBLISHED).orElseThrow(() -> {
                     log.error("Event with id = {} not found", eventId);
                     return new NotFoundException(String.format("Event with id = %d not found", eventId));
                 }
-            )
-        );
+            );
+//        event.setViews(event.getViews() + 1);
+        eventRepository.save(event);
+        EventDto dto = convertToDto(event, getViews(eventId), getConfirmedRequestsCount(eventId));
+        setViews(eventId, clientIp);
+        return dto;
     }
 
     @Override
@@ -245,6 +247,20 @@ public class EventServiceImpl implements EventService {
                     .filter(request -> request.getStatus() == RequestType.REJECTED)
                     .map(RequestMapper::convertToDto)
                     .collect(Collectors.toList()));
+    }
+
+    private long getConfirmedRequestsCount(long eventId) {
+        return  requestRepository.countByEventIdAndStatus(eventId, RequestType.CONFIRMED);
+    }
+
+    private long getViews(long eventId) {
+        return viewRepository.countByEventId(eventId);
+    }
+
+    private void setViews(long eventId, String clientIp) {
+        if (!viewRepository.existsByEventIdAndUserIp(eventId, clientIp)) {
+            viewRepository.save(new View(eventId, clientIp));
+        }
     }
 
     private void checkUpdate(Event event, EventAdminUpdateDto newEvent) {

@@ -15,6 +15,7 @@ import ru.practicum.ewm.dto.request.RequestStatusGetDto;
 import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 import ru.practicum.ewm.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,9 +47,9 @@ public class EventController {
     }
 
     @GetMapping(PRIVATE_PATH + "/{eventId}")
-    public EventDto findEventForUser(@PathVariable long userId, @PathVariable long eventId) {
+    public EventDto findEventForUser(@PathVariable long userId, @PathVariable long eventId, HttpServletRequest request) {
         log.info("Getting event for user ={}", userId);
-        return eventService.findEventForUser(userId, eventId);
+        return eventService.findEventForUser(userId, eventId, request.getRemoteAddr());
     }
 
     @PatchMapping(PRIVATE_PATH + "/{eventId}")
@@ -94,9 +95,9 @@ public class EventController {
     }
 
     @GetMapping(PUBLIC_PATH + "/{id}")
-    public EventDto findEventById(@PathVariable(name = "id") long eventId) {
+    public EventDto findEventById(@PathVariable(name = "id") long eventId, HttpServletRequest request) {
         log.info("Finding event with id = {} for public", eventId);
-        return eventService.findEventById(eventId);
+        return eventService.findEventById(eventId, request.getRemoteAddr());
     }
 
     @GetMapping(PRIVATE_PATH + "/{eventId}/requests")

@@ -27,7 +27,7 @@ public class EventMapper {
                 .title(eventDto.getTitle()).build();
     }
 
-    public static EventDto convertToDto(Event event) {
+    public static EventDto convertToDto(Event event, long viewCount, long confirmedRequestsCount) {
         return new EventDto(event.getAnnotation(), event.getId(), CategoryMapper.convertToDto(event.getCategory()),
                 convertToString(event.getCreateDate()), event.getDescription(), convertToString(event.getExistDate()),
                 UserMapper.convertToWithoutEmailDto(event.getInitiator()),
@@ -35,6 +35,7 @@ public class EventMapper {
                 event.getIsPaid(),
                 event.getParticipantLimit(),
                 event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()),
-                event.getViews());
+                viewCount,
+                confirmedRequestsCount);
     }
 }

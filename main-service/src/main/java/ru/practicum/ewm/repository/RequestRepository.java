@@ -14,4 +14,6 @@ public interface RequestRepository extends CrudRepository<Request, Long> {
     List<Request> findAllByRequesterId(long userId);
 
     List<Request> findAllByEventIdAndEventInitiatorId(long eventId, long userId);
+
+    List<Request> findAllByEventIdInAndStatus(List<Long> eventIds, RequestType requestType);
 }

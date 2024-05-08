@@ -16,8 +16,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 
     Optional<Event> findByIdAndInitiatorId(long eventId, long userId);
 
-//    boolean existsByIdAndInitiatorId(long eventId, long userId);
-
     @Query("SELECT event FROM Event event\n" +
             "JOIN FETCH event.initiator as init\n" +
             "JOIN FETCH event.category as cat\n" +
@@ -54,4 +52,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
                                 Pageable pageable);
 
     Optional<Event> findByIdAndState(long eventId, StateType state);
+
+    List<Event> findAllByIdIn(List<Long> eventIds);
 }

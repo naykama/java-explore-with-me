@@ -190,7 +190,6 @@ public class EventServiceImpl implements EventService {
                     return new NotFoundException(String.format("Event with id = %d not found", eventId));
                 }
             );
-//        event.setViews(event.getViews() + 1);
         eventRepository.save(event);
         EventDto dto = convertToDto(event, getViews(eventId), getConfirmedRequestsCount(eventId));
         setViews(eventId, clientIp);

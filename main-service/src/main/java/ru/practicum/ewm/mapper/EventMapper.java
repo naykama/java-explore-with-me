@@ -1,5 +1,6 @@
 package ru.practicum.ewm.mapper;
 
+import ru.practicum.ewm.dto.event.EventCompilationDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.entity.Category;
@@ -37,5 +38,11 @@ public class EventMapper {
                 event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()),
                 viewCount,
                 confirmedRequestsCount);
+    }
+
+    public static EventCompilationDto convertToCompilationDto(Event event, long viewCount, long confirmedRequests) {
+        return new EventCompilationDto(event.getAnnotation(), CategoryMapper.convertToDto(event.getCategory()),
+                confirmedRequests, convertToString(event.getExistDate()), event.getId(),
+                UserMapper.convertToDto(event.getInitiator()), event.getIsPaid(), event.getTitle(), viewCount);
     }
 }

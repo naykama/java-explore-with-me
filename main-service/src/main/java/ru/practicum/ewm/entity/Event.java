@@ -6,6 +6,7 @@ import ru.practicum.ewm.entity.enums.StateType;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -46,7 +47,8 @@ public class Event {
     private StateType state;
     @Column(name = "publish_date")
     private LocalDateTime publishDate;
-//    private long views;
+    @ManyToMany(mappedBy = "events")
+    Set<Compilation> compilations;
 
     @Override
     public boolean equals(Object o) {

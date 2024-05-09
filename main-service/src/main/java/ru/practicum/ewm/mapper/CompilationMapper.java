@@ -27,7 +27,8 @@ public class CompilationMapper {
     }
 
     public static CompilationDto convertToDto(Compilation compilation, List<EventCompilationDto> events) {
-        return new CompilationDto(compilation.getId(), events, compilation.isPinned(), compilation.getTitle());
+        return new CompilationDto(compilation.getId(), events == null ? new ArrayList<>() : events,
+                compilation.isPinned(), compilation.getTitle());
     }
 
     public static CompilationDto convertToDto(Compilation compilation) {

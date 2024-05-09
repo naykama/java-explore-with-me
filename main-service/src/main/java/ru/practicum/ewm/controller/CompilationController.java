@@ -11,6 +11,7 @@ import ru.practicum.ewm.dto.compilation.CompilationUpdateDto;
 import ru.practicum.ewm.service.CompilationService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,5 +41,19 @@ public class CompilationController {
     public CompilationDto updateCompilation(@PathVariable long compId, @Valid @RequestBody CompilationUpdateDto compilation) {
         log.info("Updating compilation with id = {}", compId);
         return compilationService.updateCompilation(compId, compilation);
+    }
+
+    @GetMapping(PUBLIC_PATH)
+    public List<CompilationDto> findAllCompilations(@RequestParam(required = false, name = "pinned") Boolean isPinned,
+                                                    @RequestParam(defaultValue = "0") int from,
+                                                    @RequestParam(defaultValue = "10") int size) {
+        log.info("Finding compilations");
+        return compilationService.findAllCompilations(isPinned, from, size);
+    }
+
+    @GetMapping(PUBLIC_PATH + "/{compId}")
+    public CompilationDto findCompilationById(@PathVariable long compId) {
+        log.info("Finding compilation with id = {}", compId);
+        return compilationService.findCompilationById(compId);
     }
 }

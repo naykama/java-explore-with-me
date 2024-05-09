@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.implementation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.dto.compilation.CompilationShortDto;
@@ -20,6 +21,7 @@ import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.ViewRepository;
 import ru.practicum.ewm.service.CompilationService;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.mapper.CompilationMapper.convertToDto;
 import static ru.practicum.ewm.mapper.CompilationMapper.convertToEntity;
+import static ru.practicum.ewm.utils.CustomPage.getPage;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +81,26 @@ public class CompilationServiceImpl implements CompilationService {
         }
         updatedCompilation.setEvents(new HashSet<>(events));
         return convertToDto(compilationRepository.save(updatedCompilation), getEventDto(events));
+    }
+
+    @Override
+    public List<CompilationDto> findAllCompilations(Boolean isPinned, int from, int size) {
+        Pageable pageConfig = getPage(from, size);
+        return (isPinned == null ? compilationRepository.findAll(pageConfig)
+                : compilationRepository.findAllByIsPinned(isPinned, pageConfig)).stream()
+                    .map((compilation) -> compilation.getEvents().isEmpty() ? convertToDto(compilation)
+                            : convertToDto(compilation, getEventDto(new ArrayList<>(compilation.getEvents()))))
+                    .collect(Collectors.toList());
+    }
+
+    @Override
+    public CompilationDto findCompilationById(long id) {
+        Compilation compilation = compilationRepository.findById(id).orElseThrow(() -> {
+            log.error("Compilation with id = {} not found", id);
+            return new NotFoundException(String.format("Compilation with id = %d not found", id));
+        });
+        return compilation.getEvents().isEmpty() ? convertToDto(compilation) : convertToDto(compilation,
+                getEventDto(new ArrayList<>(compilation.getEvents())));
     }
 
     private Compilation updateFromDto(Compilation entity, CompilationUpdateDto dto) {

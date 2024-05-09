@@ -2,10 +2,13 @@ package ru.practicum.ewm.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.dto.compilation.CompilationShortDto;
+import ru.practicum.ewm.dto.compilation.CompilationUpdateDto;
 import ru.practicum.ewm.dto.event.EventCompilationDto;
+import ru.practicum.ewm.entity.Compilation;
 import ru.practicum.ewm.entity.Event;
 import ru.practicum.ewm.entity.View;
 import ru.practicum.ewm.entity.enums.RequestType;
@@ -17,6 +20,7 @@ import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.ViewRepository;
 import ru.practicum.ewm.service.CompilationService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,15 +40,57 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto createCompilation(CompilationShortDto compilation) {
-        List<Event> events = compilation.getEventIds() != null ? eventRepository.findAllByIdIn(compilation.getEventIds()) : null;
-        if (events != null && events.size() < compilation.getEventIds().size()) {
+        if (compilation.getEventIds() == null || compilation.getEventIds().size() == 0) {
+            return convertToDto(compilationRepository.save(convertToEntity(compilation)));
+        }
+        List<Event> events = eventRepository.findAllByIdIn(compilation.getEventIds());
+        if (events.size() < compilation.getEventIds().size()) {
                 log.error("Not all events are exists");
                 throw new NotFoundException("Not all events are exists");
             }
-        if (compilation.getEventIds() == null) {
-            return convertToDto(compilationRepository.save(convertToEntity(compilation)));
-        }
         return convertToDto(compilationRepository.save(convertToEntity(compilation, events)), getEventDto(events));
+    }
+
+    @Override
+    public void deleteCompilationById(long id) {
+        try {
+            compilationRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            log.error("Category with id = {} not found", id);
+            throw new NotFoundException(String.format("Category with id = %d not found", id));
+        }
+    }
+
+    @Override
+    public CompilationDto updateCompilation(long id, CompilationUpdateDto compilationDto) {
+        Compilation compilation = compilationRepository.findById(id).orElseThrow(() -> {
+            log.error("Compilation with id = {} not found", id);
+            return new NotFoundException(String.format("Compilation with id = %d not found", id));
+        });
+        Compilation updatedCompilation = updateFromDto(compilation, compilationDto);
+        if (compilationDto.getEventIds() == null) {
+            return convertToDto(updatedCompilation);
+        }
+        List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEventIds());
+        if (events.size() < compilationDto.getEventIds().size()) {
+            log.error("Not all events are exists");
+            throw new NotFoundException("Not all events are exists");
+        }
+        updatedCompilation.setEvents(new HashSet<>(events));
+        return convertToDto(compilationRepository.save(updatedCompilation), getEventDto(events));
+    }
+
+    private Compilation updateFromDto(Compilation entity, CompilationUpdateDto dto) {
+        if (dto == null) {
+            return entity;
+        }
+        if (dto.getIsPinned() != null) {
+            entity.setPinned(dto.getIsPinned());
+        }
+        if (dto.getTitle() != null) {
+            entity.setTitle(dto.getTitle());
+        }
+        return entity;
     }
 
     private List<EventCompilationDto> getEventDto(List<Event> events) {

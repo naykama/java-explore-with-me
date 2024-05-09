@@ -11,7 +11,7 @@ import javax.validation.constraints.Pattern;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class EventDto {
+public class StatEventDto {
     @NotBlank(message = "Название сервиса не может быть пустым")
     private final String app;
     @NotBlank(message = "Адрес, на который отправлен запрос, не может быть пустым")

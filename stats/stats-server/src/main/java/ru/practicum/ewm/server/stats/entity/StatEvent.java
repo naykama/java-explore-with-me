@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @ToString
-public class Event {
+public class StatEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +23,7 @@ public class Event {
     private String ip;
     private LocalDateTime existDate;
 
-    public Event(String app, String uri, String ip, LocalDateTime existDate) {
+    public StatEvent(String app, String uri, String ip, LocalDateTime existDate) {
         this.id = -1L;
         this.app = app;
         this.uri = uri;
@@ -34,8 +34,8 @@ public class Event {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Event)) return false;
-        return id != null && id.equals(((Event) o).getId());
+        if (!(o instanceof StatEvent)) return false;
+        return id != null && id.equals(((StatEvent) o).getId());
     }
 
     @Override

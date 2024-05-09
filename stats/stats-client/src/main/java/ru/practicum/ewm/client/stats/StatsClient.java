@@ -3,7 +3,7 @@ package ru.practicum.ewm.client.stats;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import ru.practicum.ewm.dto.stats.EventDto;
+import ru.practicum.ewm.dto.stats.StatEventDto;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class StatsClient {
         this.rest = rest;
     }
 
-    public ResponseEntity<Object> post(String path, EventDto body) {
+    public ResponseEntity<Object> post(String path, StatEventDto body) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(body, defaultHeaders());
         ResponseEntity<Object> serverResponse;
         try {

@@ -1,12 +1,13 @@
 package ru.practicum.ewm.server.stats.service;
 
-import ru.practicum.ewm.dto.stats.EventDto;
-import ru.practicum.ewm.dto.stats.EventGetDto;
+import ru.practicum.ewm.dto.stats.StatEventDto;
+import ru.practicum.ewm.dto.stats.StatEventGetDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatService {
-    void saveEvent(EventDto eventDto);
+    void saveEvent(StatEventDto eventDto);
 
-    List<EventGetDto> findEvents(String start, String end, String[] uris, boolean unique);
+    List<StatEventGetDto> findEvents(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique);
 }

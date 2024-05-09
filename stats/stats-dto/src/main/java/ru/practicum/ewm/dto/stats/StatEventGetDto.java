@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class EventGetDto {
+public class StatEventGetDto {
     @NotBlank
     private final String app;
     @NotBlank

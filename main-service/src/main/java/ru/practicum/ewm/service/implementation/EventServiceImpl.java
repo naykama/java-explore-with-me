@@ -159,26 +159,30 @@ public class EventServiceImpl implements EventService {
                                         LocalDateTime rangeEnd, boolean isOnlyAvailable, EventController.SortType sort,
                                         int from, int size) {
         Pageable pageConfig = getPage(from, size);
-        return sort == null ?
-                eventRepository.findAllForPublic(text,
+        if (sort != null) {
+            switch (sort) {
+                case EVENT_DATE:
+                    return eventRepository.findAllForPublic(text,
+                                    categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
+                                    rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
+                                    pageConfig).stream()
+                            .sorted(Comparator.comparing(Event::getExistDate))
+                            .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
+                            .collect(Collectors.toList());
+                case VIEWS:
+                    return eventRepository.findAllForPublic(text,
+                                    categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
+                                    rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
+                                    pageConfig).stream()
+                            .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
+                            .sorted(Comparator.comparingLong(EventDto::getViews))
+                            .collect(Collectors.toList());
+            }
+        }
+        return eventRepository.findAllForPublic(text,
                         categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
                         rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
                         pageConfig).stream()
-                    .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
-                    .collect(Collectors.toList())
-                : sort == EventController.SortType.EVENT_DATE ?
-                eventRepository.findAllForPublic(text,
-                                categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
-                                rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
-                                pageConfig).stream()
-                        .sorted(Comparator.comparing(Event::getExistDate))
-                        .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
-                        .collect(Collectors.toList())
-                : eventRepository.findAllForPublic(text,
-                        categories == null || categories[0] == 0 ? null : List.of(categories), isPaid,
-                        rangeStart == null ? LocalDateTime.now() : rangeStart, rangeEnd, isOnlyAvailable,
-                        pageConfig).stream()
-//                .sorted((event) -> Comparator.comparingLong(getViews(event.getId())))
                 .map((event) -> convertToDto(event, getViews(event.getId()), getConfirmedRequestsCount(event.getId())))
                 .collect(Collectors.toList());
     }

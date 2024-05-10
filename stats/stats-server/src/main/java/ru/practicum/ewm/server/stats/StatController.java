@@ -14,8 +14,6 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToDate;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +24,7 @@ public class StatController {
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public void saveEvent(@RequestBody @Valid StatEventDto eventDto) {
-        log.info("Saving event: ip = {}, date = {}, uri = {}", eventDto.getIp(), convertToDate(eventDto.getExistDate()), eventDto.getUri());
+        log.info("Saving event: ip = {}, date = {}, uri = {}", eventDto.getIp(), eventDto.getExistDate(), eventDto.getUri());
         service.saveEvent(eventDto);
     }
 

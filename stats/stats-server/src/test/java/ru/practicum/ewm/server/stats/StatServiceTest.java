@@ -31,8 +31,8 @@ public class StatServiceTest {
 
     @Test
     public void saveEventTest() {
-        StatEventDto event = new StatEventDto("ewm-main-service", "/events/1", "192.163.0.1", "2022-09-06 11:00:23");
-        when(repository.save(EventMapper.convertToEntity(event))).thenReturn(EventMapper.convertToEntity(event));
+        StatEventDto event = new StatEventDto("ewm-main-service", "/events/1", "192.163.0.1", LocalDateTime.now());
+        when(repository.save(EventStatMapper.convertToEntity(event))).thenReturn(EventStatMapper.convertToEntity(event));
         service.saveEvent(event);
         verify(repository).save(any(StatEvent.class));
     }

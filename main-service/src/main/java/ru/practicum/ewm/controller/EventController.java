@@ -2,17 +2,18 @@ package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.ewm.client.stats.StatsClient;
-import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
 import ru.practicum.ewm.dto.event.update.EventAdminUpdateDto;
 import ru.practicum.ewm.dto.event.update.EventUpdateDto;
+import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.request.RequestStatusGetDto;
 import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 import ru.practicum.ewm.dto.stats.StatEventDto;
@@ -22,8 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +34,8 @@ public class EventController {
     private static final String PRIVATE_PATH = "/users/{userId}/events";
     private static final String PUBLIC_PATH = "/events";
     private static final String SERVER_APP_NAME = "ewm-main-service";
-    private static final String STATS_SERVER_ADDRESS = "http://localhost:9090/hit";
+    @Value("${stat_server.url}")
+    private String statsServerAddress;
     private final StatsClient statsClient = new StatsClient(new RestTemplate());
 
     @PostMapping(PRIVATE_PATH)
@@ -100,15 +100,15 @@ public class EventController {
                                         HttpServletRequest request) {
         checkDates(rangeStart, rangeEnd);
         log.info("Finding events for public");
-        statsClient.post(STATS_SERVER_ADDRESS, new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH, request.getRemoteAddr(), convertToString(LocalDateTime.now())));
+        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH, request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findAllEvents(text, categories, isPaid, rangeStart, rangeEnd, isOnlyAvailable, sort, from, size);
     }
 
     @GetMapping(PUBLIC_PATH + "/{id}")
     public EventDto findEventById(@PathVariable(name = "id") long eventId, HttpServletRequest request) {
         log.info("Finding event with id = {} for public", eventId);
-        statsClient.post(STATS_SERVER_ADDRESS, new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
-                        request.getRemoteAddr(), convertToString(LocalDateTime.now())));
+        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
+                        request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findEventById(eventId, request.getRemoteAddr());
     }
 

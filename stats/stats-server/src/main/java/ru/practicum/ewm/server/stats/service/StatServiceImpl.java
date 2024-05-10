@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.stats.StatEventDto;
 import ru.practicum.ewm.dto.stats.StatEventGetDto;
-import ru.practicum.ewm.server.stats.EventMapper;
+import ru.practicum.ewm.server.stats.EventStatMapper;
 import ru.practicum.ewm.server.stats.StatRepository;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public void saveEvent(StatEventDto eventDto) {
-        repository.save(EventMapper.convertToEntity(eventDto));
+        repository.save(EventStatMapper.convertToEntity(eventDto));
     }
 
     @Override

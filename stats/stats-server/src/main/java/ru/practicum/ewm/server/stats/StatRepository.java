@@ -38,7 +38,7 @@ public interface StatRepository extends CrudRepository<StatEvent, Long> {
 
     @Query("SELECT new ru.practicum.ewm.dto.stats.StatEventGetDto(event.app, event.uri, COUNT(DISTINCT ip))\n" +
             "FROM StatEvent as event\n" +
-            "WHERE event.uri IN (:uris)\n" +
+            "WHERE event.uri = :uri\n" +
             "GROUP BY event.app, event.uri")
-    List<StatEventGetDto> findWithUniqueIpByUrisWithoutDates(@Param("uris")List<String> uris);
+    StatEventGetDto findWithUniqueIpByUrisWithoutDates(@Param("uri")String uri);
 }

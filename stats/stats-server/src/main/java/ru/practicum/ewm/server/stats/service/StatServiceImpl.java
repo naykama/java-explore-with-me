@@ -20,7 +20,8 @@ public class StatServiceImpl implements StatService {
     @Override
     public Long saveEvent(StatEventDto eventDto) {
         repository.save(EventStatMapper.convertToEntity(eventDto));
-        return repository.findWithUniqueIpByUrisWithoutDates(List.of(eventDto.getUri())).get(0).getHits();
+        StatEventGetDto getDto = repository.findWithUniqueIpByUrisWithoutDates(eventDto.getUri());
+        return getDto == null ? 0 : getDto.getHits();
     }
 
     @Override

@@ -23,9 +23,9 @@ public class StatController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void saveEvent(@RequestBody @Valid StatEventDto eventDto) {
+    public Long saveEvent(@RequestBody @Valid StatEventDto eventDto) {
         log.info("Saving event: ip = {}, date = {}, uri = {}", eventDto.getIp(), eventDto.getExistDate(), eventDto.getUri());
-        service.saveEvent(eventDto);
+        return service.saveEvent(eventDto);
     }
 
     @GetMapping("/stats")

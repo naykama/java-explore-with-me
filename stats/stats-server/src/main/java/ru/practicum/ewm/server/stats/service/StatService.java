@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatService {
-    void saveEvent(StatEventDto eventDto);
+    Long saveEvent(StatEventDto eventDto);
 
     List<StatEventGetDto> findEvents(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique);
 }

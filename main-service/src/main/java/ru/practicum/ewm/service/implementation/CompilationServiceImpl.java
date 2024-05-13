@@ -11,14 +11,12 @@ import ru.practicum.ewm.dto.compilation.CompilationUpdateDto;
 import ru.practicum.ewm.dto.event.EventCompilationDto;
 import ru.practicum.ewm.entity.Compilation;
 import ru.practicum.ewm.entity.Event;
-import ru.practicum.ewm.entity.View;
 import ru.practicum.ewm.entity.enums.RequestType;
 import ru.practicum.ewm.entity.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.RequestRepository;
-import ru.practicum.ewm.repository.ViewRepository;
 import ru.practicum.ewm.service.CompilationService;
 
 import java.util.ArrayList;
@@ -38,7 +36,6 @@ import static ru.practicum.ewm.utils.CustomPage.getPage;
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final ViewRepository viewRepository;
     private final RequestRepository requestRepository;
 
     @Override
@@ -120,12 +117,6 @@ public class CompilationServiceImpl implements CompilationService {
         List<Long> eventIds = events.stream()
             .map(Event::getId)
             .collect(Collectors.toList());
-        Map<Long, Long> viewCountByEventId = viewRepository.findAllByEventIdIn(eventIds)
-                .stream()
-                .map(View::getEventId)
-                .collect(Collectors.groupingBy(
-                    Function.identity(),
-                    Collectors.collectingAndThen(Collectors.counting(), Long::longValue)));
         Map<Long, Long> countRequestsById = requestRepository.findAllByEventIdInAndStatus(eventIds, RequestType.CONFIRMED).stream()
                 .map(request -> request.getEvent().getId())
                 .collect(Collectors.groupingBy(
@@ -133,7 +124,6 @@ public class CompilationServiceImpl implements CompilationService {
                         Collectors.collectingAndThen(Collectors.counting(), Long::longValue)));
         return events.stream()
                 .map(event -> EventMapper.convertToCompilationDto(event,
-                        viewCountByEventId.getOrDefault(event.getId(), 0L),
                         countRequestsById.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }

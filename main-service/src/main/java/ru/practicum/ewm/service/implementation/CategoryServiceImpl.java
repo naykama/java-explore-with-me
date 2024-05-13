@@ -79,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto findById(long id) {
         return convertToDto(categoryRepository.findById(id).orElseThrow(() -> {
             log.error("Category with id = {} not found", id);
-            throw new NotFoundException(String.format("Category with id = {} not found", id));
+            return new NotFoundException(String.format("Category with id = %d not found", id));
         }
         ));
     }

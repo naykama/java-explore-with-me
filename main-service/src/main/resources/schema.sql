@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS events (
   request_moderation BOOLEAN,
   state VARCHAR(10),
   title VARCHAR(120),
---  views BIGINT,
+  views BIGINT,
   CONSTRAINT pk_event PRIMARY KEY (id),
   CONSTRAINT fk_events_to_categories FOREIGN KEY(category_id) REFERENCES categories(id),
   CONSTRAINT fk_events_to_users FOREIGN KEY(initiator_id) REFERENCES users(id)
@@ -63,9 +63,9 @@ CREATE TABLE IF NOT EXISTS compilation_event (
   CONSTRAINT fk_compilation_event_to_compilations FOREIGN KEY(compilation_id) REFERENCES compilations(id)
 );
 
-CREATE TABLE IF NOT EXISTS views (
-    event_id BIGINT,
-    user_ip VARCHAR(30),
-    CONSTRAINT pk_view PRIMARY KEY (event_id, user_ip),
-    CONSTRAINT fk_view_to_events FOREIGN KEY(event_id) REFERENCES events(id)
-);
+--CREATE TABLE IF NOT EXISTS views (
+--    event_id BIGINT,
+--    user_ip VARCHAR(30),
+--    CONSTRAINT pk_view PRIMARY KEY (event_id, user_ip),
+--    CONSTRAINT fk_view_to_events FOREIGN KEY(event_id) REFERENCES events(id)
+--);

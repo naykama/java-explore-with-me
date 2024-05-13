@@ -17,6 +17,7 @@ import ru.practicum.ewm.dto.request.RequestDto;
 import ru.practicum.ewm.dto.request.RequestStatusGetDto;
 import ru.practicum.ewm.dto.request.RequestStatusUpdateDto;
 import ru.practicum.ewm.dto.stats.StatEventDto;
+import ru.practicum.ewm.entity.enums.SortType;
 import ru.practicum.ewm.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,15 +50,20 @@ public class EventController {
     @GetMapping(PRIVATE_PATH)
     public List<EventDto> findEventsForUser(@PathVariable long userId,
                                             @RequestParam(defaultValue = "0") int from,
-                                            @RequestParam(defaultValue = "10") int size) {
+                                            @RequestParam(defaultValue = "10") int size,
+                                            HttpServletRequest request) {
         log.info("Getting all events for user ={}", userId);
+        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH,
+                request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findEventsForUser(userId, from, size);
     }
 
     @GetMapping(PRIVATE_PATH + "/{eventId}")
     public EventDto findEventForUser(@PathVariable long userId, @PathVariable long eventId, HttpServletRequest request) {
         log.info("Getting event for user ={}", userId);
-        return eventService.findEventForUser(userId, eventId, request.getRemoteAddr());
+        long viewsCount = ((Number) statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH + "/" + eventId,
+                request.getRemoteAddr(), LocalDateTime.now())).getBody()).longValue();
+        return eventService.findEventForUser(userId, eventId, request.getRemoteAddr(), viewsCount);
     }
 
     @PatchMapping(PRIVATE_PATH + "/{eventId}")
@@ -75,9 +81,12 @@ public class EventController {
                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                           @RequestParam(defaultValue = "0") int from,
-                                          @RequestParam(defaultValue = "10") int size) {
+                                          @RequestParam(defaultValue = "10") int size,
+                                          HttpServletRequest request) {
         checkDates(rangeStart, rangeEnd);
         log.info("Getting events for admin, rangeStart = {}, users = {}, rangeEnd = {}", rangeStart, users, rangeEnd);
+        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, ADMIN_PATH,
+                request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findAllForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
@@ -107,9 +116,9 @@ public class EventController {
     @GetMapping(PUBLIC_PATH + "/{id}")
     public EventDto findEventById(@PathVariable(name = "id") long eventId, HttpServletRequest request) {
         log.info("Finding event with id = {} for public", eventId);
-        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
-                        request.getRemoteAddr(), LocalDateTime.now()));
-        return eventService.findEventById(eventId, request.getRemoteAddr());
+        long viewsCount = ((Number) statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
+                        request.getRemoteAddr(), LocalDateTime.now())).getBody()).longValue();
+        return eventService.findEventById(eventId, request.getRemoteAddr(), viewsCount);
     }
 
     @GetMapping(PRIVATE_PATH + "/{eventId}/requests")
@@ -123,11 +132,6 @@ public class EventController {
                                                    @RequestBody RequestStatusUpdateDto requestUpdateDto) {
         log.info("update request status for event id = {}", eventId);
         return eventService.updateRequestsStatus(eventId, userId, requestUpdateDto);
-    }
-
-    public enum SortType {
-        EVENT_DATE,
-        VIEWS
     }
 
     private void checkDates(LocalDateTime rangeStart, LocalDateTime rangeEnd) {

@@ -14,6 +14,7 @@ import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToDate;
 import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;
 
 public class EventMapper {
+
     public static Event convertToEntity(EventShortDto eventDto, Category category, LocalDateTime createDate,
                                         User initiator) {
         return Event.builder().annotation(eventDto.getAnnotation()).category(category)
@@ -28,7 +29,7 @@ public class EventMapper {
                 .title(eventDto.getTitle()).build();
     }
 
-    public static EventDto convertToDto(Event event, long viewCount, long confirmedRequestsCount) {
+    public static EventDto convertToDto(Event event, long confirmedRequestsCount) {
         return new EventDto(event.getAnnotation(), event.getId(), CategoryMapper.convertToDto(event.getCategory()),
                 convertToString(event.getCreateDate()), event.getDescription(), convertToString(event.getExistDate()),
                 UserMapper.convertToWithoutEmailDto(event.getInitiator()),
@@ -36,13 +37,13 @@ public class EventMapper {
                 event.getIsPaid(),
                 event.getParticipantLimit(),
                 event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()),
-                viewCount,
+                event.getViews(),
                 confirmedRequestsCount);
     }
 
-    public static EventCompilationDto convertToCompilationDto(Event event, long viewCount, long confirmedRequests) {
+    public static EventCompilationDto convertToCompilationDto(Event event, long confirmedRequests) {
         return new EventCompilationDto(event.getAnnotation(), CategoryMapper.convertToDto(event.getCategory()),
                 confirmedRequests, convertToString(event.getExistDate()), event.getId(),
-                UserMapper.convertToDto(event.getInitiator()), event.getIsPaid(), event.getTitle(), viewCount);
+                UserMapper.convertToDto(event.getInitiator()), event.getIsPaid(), event.getTitle(), event.getViews());
     }
 }

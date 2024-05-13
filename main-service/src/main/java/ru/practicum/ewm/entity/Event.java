@@ -49,6 +49,7 @@ public class Event {
     private LocalDateTime publishDate;
     @ManyToMany(mappedBy = "events")
     Set<Compilation> compilations;
+    long views;
 
     @Override
     public boolean equals(Object o) {

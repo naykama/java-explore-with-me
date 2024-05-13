@@ -23,12 +23,7 @@ public class StatEventDto {
     @NotBlank(message = "Ip отправителя не может быть пустым")
     private String ip;
     @JsonProperty("timestamp")
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull
     private LocalDateTime existDate;
-//    @NotBlank(message = "Дата и время запроса должны быть указаны в формате yyyy-MM-dd HH:mm:ss")
-//    @Pattern(regexp = "\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d",
-//            message = "Формат даты не соответствует шаблону yyyy-MM-dd HH:mm:ss")
-//    private final String existDate;
 }

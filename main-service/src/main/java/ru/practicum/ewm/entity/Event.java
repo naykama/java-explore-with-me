@@ -50,6 +50,8 @@ public class Event {
     @ManyToMany(mappedBy = "events")
     Set<Compilation> compilations;
     long views;
+    @OneToMany(mappedBy = "event")
+    private Set<Comment> comments;
 
     @Override
     public boolean equals(Object o) {

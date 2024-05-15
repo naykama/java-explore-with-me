@@ -9,6 +9,7 @@ import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.CommentPostDto;
 import ru.practicum.ewm.service.CommentService;
 
+import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.time.LocalDateTime;
 
@@ -16,14 +17,20 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-@RequestMapping("/users/{userId}/comments/{eventId}")
+@RequestMapping("/users/{userId}/comments")
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping
+    @PostMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public CommentDto createComment(@PathVariable long userId, @PathVariable long eventId, @RequestBody CommentPostDto comment) {
+    public CommentDto createComment(@PathVariable long userId, @PathVariable long eventId, @Valid @RequestBody CommentPostDto comment) {
         log.info("Creating comment with text = {}", comment.getText());
         return commentService.createComment(comment, LocalDateTime.now(), eventId, userId);
+    }
+
+    @PatchMapping("/{commentId}")
+    public CommentDto updateComment(@PathVariable long userId, @PathVariable long commentId, @Valid @RequestBody CommentPostDto comment) {
+        log.info("Updating comment with id = {}", commentId);
+        return commentService.updateComment(userId, commentId, comment);
     }
 }

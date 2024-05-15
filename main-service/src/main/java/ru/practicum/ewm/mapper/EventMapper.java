@@ -1,5 +1,6 @@
 package ru.practicum.ewm.mapper;
 
+import ru.practicum.ewm.dto.comment.CommentPostDto;
 import ru.practicum.ewm.dto.event.EventCompilationDto;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
@@ -9,6 +10,8 @@ import ru.practicum.ewm.entity.Location;
 import ru.practicum.ewm.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToDate;
 import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;
@@ -38,12 +41,18 @@ public class EventMapper {
                 event.getParticipantLimit(),
                 event.isRequestModeration(), event.getTitle(), event.getState(), convertToString(event.getPublishDate()),
                 event.getViews(),
-                confirmedRequestsCount);
+                confirmedRequestsCount,
+                event.getComments() == null ? new ArrayList<>() : event.getComments().stream()
+                        .map(CommentMapper::convertToShortDto)
+                        .collect(Collectors.toList()));
     }
 
     public static EventCompilationDto convertToCompilationDto(Event event, long confirmedRequests) {
         return new EventCompilationDto(event.getAnnotation(), CategoryMapper.convertToDto(event.getCategory()),
                 confirmedRequests, convertToString(event.getExistDate()), event.getId(),
-                UserMapper.convertToDto(event.getInitiator()), event.getIsPaid(), event.getTitle(), event.getViews());
+                UserMapper.convertToDto(event.getInitiator()), event.getIsPaid(), event.getTitle(), event.getViews(),
+                event.getComments() == null ? new ArrayList<>() : event.getComments().stream()
+                        .map((comment -> new CommentPostDto(comment.getText())))
+                        .collect(Collectors.toList()));
     }
 }

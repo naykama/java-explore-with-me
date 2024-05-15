@@ -5,6 +5,7 @@ import ru.practicum.ewm.entity.enums.StateType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -51,7 +52,7 @@ public class Event {
     Set<Compilation> compilations;
     long views;
     @OneToMany(mappedBy = "event")
-    private Set<Comment> comments;
+    private Set<Comment> comments = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

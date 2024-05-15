@@ -2,12 +2,10 @@ package ru.practicum.ewm.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import ru.practicum.ewm.client.stats.StatsClient;
 import ru.practicum.ewm.dto.event.EventDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
@@ -35,9 +33,8 @@ public class EventController {
     private static final String PRIVATE_PATH = "/users/{userId}/events";
     private static final String PUBLIC_PATH = "/events";
     private static final String SERVER_APP_NAME = "ewm-main-service";
-    @Value("${stat_server.url}")
-    private String statsServerAddress;
-    private final StatsClient statsClient = new StatsClient(new RestTemplate());
+
+    private final StatsClient statsClient;
 
     @PostMapping(PRIVATE_PATH)
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -53,7 +50,7 @@ public class EventController {
                                             @RequestParam(defaultValue = "10") int size,
                                             HttpServletRequest request) {
         log.info("Getting all events for user ={}", userId);
-        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH,
+        statsClient.post(new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH,
                 request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findEventsForUser(userId, from, size);
     }
@@ -61,7 +58,7 @@ public class EventController {
     @GetMapping(PRIVATE_PATH + "/{eventId}")
     public EventDto findEventForUser(@PathVariable long userId, @PathVariable long eventId, HttpServletRequest request) {
         log.info("Getting event for user ={}", userId);
-        long viewsCount = ((Number) statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH + "/" + eventId,
+        long viewsCount = ((Number) statsClient.post(new StatEventDto(SERVER_APP_NAME, PRIVATE_PATH + "/" + eventId,
                 request.getRemoteAddr(), LocalDateTime.now())).getBody()).longValue();
         return eventService.findEventForUser(userId, eventId, request.getRemoteAddr(), viewsCount);
     }
@@ -85,7 +82,7 @@ public class EventController {
                                           HttpServletRequest request) {
         checkDates(rangeStart, rangeEnd);
         log.info("Getting events for admin, rangeStart = {}, users = {}, rangeEnd = {}", rangeStart, users, rangeEnd);
-        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, ADMIN_PATH,
+        statsClient.post(new StatEventDto(SERVER_APP_NAME, ADMIN_PATH,
                 request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findAllForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
@@ -109,14 +106,14 @@ public class EventController {
                                         HttpServletRequest request) {
         checkDates(rangeStart, rangeEnd);
         log.info("Finding events for public");
-        statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH, request.getRemoteAddr(), LocalDateTime.now()));
+        statsClient.post(new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH, request.getRemoteAddr(), LocalDateTime.now()));
         return eventService.findAllEvents(text, categories, isPaid, rangeStart, rangeEnd, isOnlyAvailable, sort, from, size);
     }
 
     @GetMapping(PUBLIC_PATH + "/{id}")
     public EventDto findEventById(@PathVariable(name = "id") long eventId, HttpServletRequest request) {
         log.info("Finding event with id = {} for public", eventId);
-        long viewsCount = ((Number) statsClient.post(statsServerAddress + "/hit", new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
+        long viewsCount = ((Number) statsClient.post(new StatEventDto(SERVER_APP_NAME, PUBLIC_PATH + "/" + eventId,
                         request.getRemoteAddr(), LocalDateTime.now())).getBody()).longValue();
         return eventService.findEventById(eventId, request.getRemoteAddr(), viewsCount);
     }

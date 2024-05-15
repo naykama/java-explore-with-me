@@ -1,6 +1,9 @@
 package ru.practicum.ewm.client.stats;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import ru.practicum.ewm.dto.stats.StatEventDto;
@@ -8,14 +11,15 @@ import ru.practicum.ewm.dto.stats.StatEventDto;
 import java.util.List;
 import java.util.Map;
 
+@Component
+@RequiredArgsConstructor
 public class StatsClient {
+    @Value("${stat_server.url}")
+    private String statsServerAddress;
     private final RestTemplate rest;
 
-    public StatsClient(RestTemplate rest) {
-        this.rest = rest;
-    }
-
-    public ResponseEntity<Object> post(String path, StatEventDto body) {
+    public ResponseEntity<Object> post(StatEventDto body) {
+        String path = statsServerAddress + "/hit";
         HttpEntity<Object> requestEntity = new HttpEntity<>(body, defaultHeaders());
         ResponseEntity<Object> serverResponse;
         try {

@@ -2,7 +2,9 @@ package ru.practicum.ewm.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.CommentPostDto;
 import ru.practicum.ewm.entity.Comment;
@@ -27,6 +29,7 @@ public class CommentServiceImpl implements CommentService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
+    @Override
     public CommentDto createComment(CommentPostDto dto, LocalDateTime createTime, long eventId, long userId) {
         if (!userRepository.existsById(userId)) {
             log.error("User with id = {} not found", userId);
@@ -40,6 +43,7 @@ public class CommentServiceImpl implements CommentService {
         return convertToDto(commentRepository.save(convertToEntity(dto, createTime, event, userId)));
     }
 
+    @Override
     public CommentDto updateComment(long userId, long commentId, CommentPostDto dto) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> {
                 log.error("Comment with id = {} not found", commentId);
@@ -53,5 +57,24 @@ public class CommentServiceImpl implements CommentService {
         comment.setText(dto.getText());
         comment.setCreateDate(LocalDateTime.now());
         return convertToDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public void deleteComment(long userId, long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> {
+            log.error("Comment with id = {} not found", commentId);
+            return new NotFoundException(String.format("Comment with id = %d not found", commentId));
+        }
+        );
+        if (userId != comment.getUserId()) {
+            log.error("User is not an author of comment");
+            throw new ConflictException("User is not an author of comment");
+        }
+        try {
+            commentRepository.deleteById(commentId);
+        } catch (EmptyResultDataAccessException e) {
+            log.error("Comment with id = {} not found", commentId);
+            throw new NotFoundException(String.format("Comment with id = %d not found", commentId));
+        }
     }
 }

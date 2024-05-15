@@ -33,4 +33,11 @@ public class CommentController {
         log.info("Updating comment with id = {}", commentId);
         return commentService.updateComment(userId, commentId, comment);
     }
+
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable long userId, @PathVariable long commentId) {
+        log.info("Deleting comment with id = {}", commentId);
+        commentService.deleteComment(userId, commentId);
+    }
 }

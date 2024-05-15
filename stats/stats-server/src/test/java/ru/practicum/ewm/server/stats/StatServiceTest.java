@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.ewm.dto.stats.EventDto;
-import ru.practicum.ewm.server.stats.entity.Event;
+import ru.practicum.ewm.dto.stats.StatEventDto;
+import ru.practicum.ewm.server.stats.entity.StatEvent;
 import ru.practicum.ewm.server.stats.service.StatService;
 import ru.practicum.ewm.server.stats.service.StatServiceImpl;
 
@@ -17,8 +17,6 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToDate;
-import static ru.practicum.ewm.dto.stats.utils.ConvertDate.convertToString;
 
 @ExtendWith(MockitoExtension.class)
 public class StatServiceTest {
@@ -33,32 +31,32 @@ public class StatServiceTest {
 
     @Test
     public void saveEventTest() {
-        EventDto event = new EventDto("ewm-main-service", "/events/1", "192.163.0.1", "2022-09-06 11:00:23");
-        when(repository.save(EventMapper.convertToEntity(event))).thenReturn(EventMapper.convertToEntity(event));
+        StatEventDto event = new StatEventDto("ewm-main-service", "/events/1", "192.163.0.1", LocalDateTime.now());
+        when(repository.save(EventStatMapper.convertToEntity(event))).thenReturn(EventStatMapper.convertToEntity(event));
         service.saveEvent(event);
-        verify(repository).save(any(Event.class));
+        verify(repository).save(any(StatEvent.class));
     }
 
     @Test
     public void findEventTest() {
-        String start = convertToString(LocalDateTime.now());
-        String end = convertToString(LocalDateTime.now().plusDays(5));
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusDays(5);
         String[] uris = new String[] {"uri1", "uri2"};
-        when(repository.findWithNoUniqueIp(convertToDate(start), convertToDate(end))).thenReturn(new ArrayList<>());
-        when(repository.findWithNoUniqueIpByUris(convertToDate(start), convertToDate(end), List.of(uris))).thenReturn(new ArrayList<>());
-        when(repository.findWithUniqueIp(convertToDate(start), convertToDate(end))).thenReturn(new ArrayList<>());
-        when(repository.findWithUniqueIpByUris(convertToDate(start), convertToDate(end), List.of(uris))).thenReturn(new ArrayList<>());
+        when(repository.findWithNoUniqueIp(start, end)).thenReturn(new ArrayList<>());
+        when(repository.findWithNoUniqueIpByUris(start, end, List.of(uris))).thenReturn(new ArrayList<>());
+        when(repository.findWithUniqueIp(start, end)).thenReturn(new ArrayList<>());
+        when(repository.findWithUniqueIpByUris(start, end, List.of(uris))).thenReturn(new ArrayList<>());
 
         service.findEvents(start, end, null, false);
-        verify(repository).findWithNoUniqueIp(convertToDate(start), convertToDate(end));
+        verify(repository).findWithNoUniqueIp(start, end);
 
         service.findEvents(start, end,uris, false);
-        verify(repository).findWithNoUniqueIpByUris(convertToDate(start), convertToDate(end), List.of(uris));
+        verify(repository).findWithNoUniqueIpByUris(start, end, List.of(uris));
 
         service.findEvents(start, end, null, true);
-        verify(repository).findWithUniqueIp(convertToDate(start), convertToDate(end));
+        verify(repository).findWithUniqueIp(start, end);
 
         service.findEvents(start, end, uris, true);
-        verify(repository).findWithUniqueIpByUris(convertToDate(start), convertToDate(end), List.of(uris));
+        verify(repository).findWithUniqueIpByUris(start, end, List.of(uris));
     }
 }

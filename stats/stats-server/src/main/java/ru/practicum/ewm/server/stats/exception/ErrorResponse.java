@@ -3,9 +3,9 @@ package ru.practicum.ewm.server.stats.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public class ErrorResponse {
-    @Getter
     private final String error;
     private String stackTrace;
 

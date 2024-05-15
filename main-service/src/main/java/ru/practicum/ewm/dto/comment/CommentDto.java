@@ -1,9 +1,7 @@
 package ru.practicum.ewm.dto.comment;
 
 import lombok.*;
-import ru.practicum.ewm.entity.Event;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor

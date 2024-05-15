@@ -10,7 +10,6 @@ import ru.practicum.ewm.dto.comment.CommentPostDto;
 import ru.practicum.ewm.service.CommentService;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.time.LocalDateTime;
 
 @RestController

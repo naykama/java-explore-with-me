@@ -3,7 +3,6 @@ package ru.practicum.ewm.dto.event;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import ru.practicum.ewm.dto.category.CategoryDto;
-import ru.practicum.ewm.dto.comment.CommentDto;
 import ru.practicum.ewm.dto.comment.CommentPostDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 import ru.practicum.ewm.utils.annotation.ValidDate;
@@ -12,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
